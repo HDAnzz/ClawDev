@@ -5,7 +5,7 @@ import subprocess
 import threading
 import uuid
 from queue import Queue, Empty
-from typing import AsyncGenerator, Callable, Optional
+from typing import Optional
 
 from .utils import require_api_key
 
@@ -21,11 +21,7 @@ class OpenClawAgent:
         response = agent.step("你的消息")
 
     异步用法:
-        response = await agent.async_step("你的消息")
-
-    流式用法:
-        async for chunk in agent.stream("你的消息"):
-            print(chunk, end="")
+        response = await agent.astep("你的消息")
     """
 
     @require_api_key("OPENCLAW_GATEWAY_TOKEN")
@@ -140,26 +136,22 @@ class OpenClawAgent:
             raise RuntimeError(f"[ACP error] {resp['error']}")
 
         result = resp.get("result", {})
-        if result.get("stopReason"):
-            if result.get("parts"):
-                collected = [
-                    p.get("text", "")
-                    for p in result["parts"]
-                    if p.get("type") == "text"
-                ]
-                return "".join(collected).strip()
-            return result.get("text", "")
 
         collected = []
         while True:
             try:
-                msg = self._recv_queue.get(timeout=timeout)
+                msg = self._recv_queue.get(timeout=2)
             except Empty:
-                raise TimeoutError(f"等待智能体回复超时（{timeout}s）")
+                break
 
             method = msg.get("method")
             if method == "session/update":
                 params = msg.get("params", {})
+                update = params.get("update", {})
+                if update.get("sessionUpdate") == "agent_message_chunk":
+                    content = update.get("content", {})
+                    if content.get("type") == "text":
+                        collected.append(content.get("text", ""))
                 for part in params.get("parts", []):
                     if part.get("type") == "text":
                         collected.append(part.get("text", ""))
@@ -168,86 +160,19 @@ class OpenClawAgent:
             elif method == "session/error":
                 raise RuntimeError(f"[session error] {msg.get('params')}")
 
+        if not collected and result.get("parts"):
+            collected = [
+                p.get("text", "") for p in result["parts"] if p.get("type") == "text"
+            ]
+
         return "".join(collected).strip()
 
-    async def async_step(self, message: str, timeout: int = 120) -> str:
-        if self._loop is None:
-            self._loop = asyncio.get_event_loop()
+    async def astep(self, message: str, timeout: int = 120) -> str:
+        loop = asyncio.get_event_loop()
         return await asyncio.wait_for(
-            self._loop.run_in_executor(None, self.step, message, timeout),
+            loop.run_in_executor(None, self.step, message, timeout),
             timeout=timeout,
         )
-
-    async def stream(
-        self,
-        message: str,
-        timeout: int = 120,
-        on_chunk: Optional[Callable[[str], None]] = None,
-    ) -> AsyncGenerator[str, None]:
-        if not self._proc or not self._session_id:
-            raise RuntimeError("请先调用 start()")
-
-        if self._loop is None:
-            self._loop = asyncio.get_event_loop()
-
-        req_id = str(uuid.uuid4())
-        resp_q: Queue = Queue()
-
-        with self._lock:
-            self._pending[req_id] = resp_q
-
-        await self._loop.run_in_executor(
-            None,
-            self._write,
-            {
-                "jsonrpc": "2.0",
-                "id": req_id,
-                "method": "session/prompt",
-                "params": {
-                    "sessionId": self._session_id,
-                    "prompt": [{"type": "text", "text": message}],
-                },
-            },
-        )
-
-        try:
-            resp = await asyncio.wait_for(resp_q.get(), timeout)
-        except Empty:
-            raise TimeoutError(f"等待 session/prompt 响应超时（{timeout}s）")
-
-        if "error" in resp:
-            raise RuntimeError(f"[ACP error] {resp['error']}")
-
-        result = resp.get("result", {})
-        if result.get("stopReason"):
-            if result.get("parts"):
-                for p in result["parts"]:
-                    if p.get("type") == "text":
-                        text = p.get("text", "")
-                        if on_chunk:
-                            on_chunk(text)
-                        yield text
-            return
-
-        while True:
-            try:
-                msg = await asyncio.wait_for(self._recv_queue.get(), timeout)
-            except Empty:
-                raise TimeoutError(f"等待智能体回复超时（{timeout}s）")
-
-            method = msg.get("method")
-            if method == "session/update":
-                params = msg.get("params", {})
-                for part in params.get("parts", []):
-                    if part.get("type") == "text":
-                        text = part.get("text", "")
-                        if on_chunk:
-                            on_chunk(text)
-                        yield text
-                if params.get("stopReason"):
-                    break
-            elif method == "session/error":
-                raise RuntimeError(f"[session error] {msg.get('params')}")
 
     def _initialize(self, timeout: int = 15):
         req_id = "init-1"
