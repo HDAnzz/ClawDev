@@ -55,9 +55,12 @@ RUN set -eux && \
     npm config set registry https://registry.npmmirror.com && \
     npm install -g @tobilu/qmd
 
-COPY --chown=node:node . /app/
+COPY --chown=node:node . /app/ClawDev/
 
-ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/node/.bun/bin:${PATH}"
+COPY --chown=root:root scripts/glab-warpper /usr/local/bin/glab
+RUN chmod 755 /usr/local/bin/glab
+
+ENV PATH="${PATH}:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/node/.bun/bin"
 
 USER node
 
