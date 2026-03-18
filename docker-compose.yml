@@ -1,0 +1,100 @@
+networks:
+  openclaw-net:
+    driver: bridge
+
+services:
+  openclaw-gateway:
+    # 建议替换为安装了 glab 的自定义镜像，Dockerfile 示例：
+    #   FROM openclaw:local
+    #   RUN curl -sL https://gitlab.com/gitlab-org/cli/-/releases/permalink/latest/downloads/glab_Linux_x86_64.tar.gz \
+    #       | tar xz -C /usr/local/bin glab
+    image: ${OPENCLAW_IMAGE:-openclaw:custom}
+    networks:
+      - openclaw-net
+    environment:
+      HOME: /home/node
+      TERM: xterm-256color
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN:-}
+      OPENCLAW_ALLOW_INSECURE_PRIVATE_WS: ${OPENCLAW_ALLOW_INSECURE_PRIVATE_WS:-}
+      CLAUDE_AI_SESSION_KEY: ${CLAUDE_AI_SESSION_KEY:-}
+      CLAUDE_WEB_SESSION_KEY: ${CLAUDE_WEB_SESSION_KEY:-}
+      CLAUDE_WEB_COOKIE: ${CLAUDE_WEB_COOKIE:-}
+      TZ: ${OPENCLAW_TZ:-UTC}
+      # glab 通过容器内服务名访问 GitLab，不受 external_url 影响
+      GITLAB_HOST: http://gitlab:8929
+      GITLAB_TOKEN: ${GITLAB_TOKEN:-}
+      # QMD 无 GPU 环境配置
+      NODE_LLAMA_CPP_CUDA: "false"
+    volumes:
+      - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
+      - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace
+      ## 取消注释以启用沙箱隔离（agents.defaults.sandbox）
+      ## 需要镜像内含 Docker CLI（构建时加 --build-arg OPENCLAW_INSTALL_DOCKER_CLI=1）
+      ## 或使用 docker-setup.sh 并设置 OPENCLAW_SANDBOX=1
+      ## DOCKER_GID 设置为宿主机 docker 组的 GID（运行: stat -c '%g' /var/run/docker.sock）
+      # - /var/run/docker.sock:/var/run/docker.sock
+    # group_add:
+    #   - "${DOCKER_GID:-999}"
+    ports:
+      - "${OPENCLAW_GATEWAY_PORT:-18789}:18789"
+      - "${OPENCLAW_BRIDGE_PORT:-18790}:18790"
+    init: true
+    restart: unless-stopped
+    command:
+      [
+        "node",
+        "dist/index.js",
+        "gateway",
+        "--bind",
+        "${OPENCLAW_GATEWAY_BIND:-lan}",
+        "--port",
+        "18789",
+      ]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:18789/healthz').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  gitlab:
+    image: gitlab/gitlab-ce:18.8.6-ce.0
+    container_name: roger-gitlab
+    restart: always
+    hostname: "gitlab"
+    networks:
+      - openclaw-net
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://localhost:8929'
+        nginx['listen_port'] = 8929
+        gitlab_rails['gitlab_shell_ssh_port'] = 2424
+    ports:
+      - "8929:8929"
+      - "2424:22"
+    volumes:
+      - "./volumes/config:/etc/gitlab"
+      - "./volumes/logs:/var/log/gitlab"
+      - "./volumes/data:/var/opt/gitlab"
+    shm_size: "256m"
+
+  gitlab-runner:
+    image: gitlab/gitlab-runner:alpine-v18.8.0
+    container_name: roger-gitlab-runner
+    restart: always
+    networks:
+      - openclaw-net
+    depends_on:
+      - gitlab
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./volumes/config/gitlab-runner:/etc/gitlab-runner"
+      - "./volumes/bin/docker:/usr/bin/docker"
+    command: ["run", "--user=root", "--working-directory=/home/gitlab-runner"]
+    privileged: true
