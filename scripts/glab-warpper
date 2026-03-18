@@ -1,18 +1,18 @@
 #!/bin/bash
 # glab 包装脚本
-# 根据当前工作目录自动隔离各智能体的 glab 配置，避免并发竞态问题
+# 如果智能体工作目录下存在 gitlab-cli.conf 目录，直接将其作为 GLAB_CONFIG_DIR
+# 否则从默认配置目录复制一份到工作目录下
 
 REAL_GLAB=/home/linuxbrew/.linuxbrew/bin/glab
+DEFAULT_GLAB_DIR="$HOME/.config/glab-cli"
+WORKSPACE_GLAB_DIR="$PWD/gitlab-cli.conf"
 
-# 用 PWD 的 hash 作为智能体唯一标识
-AGENT_KEY=$(echo "$PWD" | md5sum | cut -c1-8)
-AGENT_GLAB_DIR="$HOME/.config/glab-agents/$AGENT_KEY"
-
-mkdir -p "$AGENT_GLAB_DIR"
-
-# 首次使用时从全局配置复制一份作为基础
-if [ ! -f "$AGENT_GLAB_DIR/config.yml" ] && [ -f "$HOME/.config/glab-cli/config.yml" ]; then
-    cp "$HOME/.config/glab-cli/config.yml" "$AGENT_GLAB_DIR/config.yml"
+if [ ! -d "$WORKSPACE_GLAB_DIR" ]; then
+    if [ -d "$DEFAULT_GLAB_DIR" ]; then
+        cp -r "$DEFAULT_GLAB_DIR" "$WORKSPACE_GLAB_DIR"
+    else
+        mkdir -p "$WORKSPACE_GLAB_DIR"
+    fi
 fi
 
-GLAB_CONFIG_DIR="$AGENT_GLAB_DIR" exec "$REAL_GLAB" "$@"
+GLAB_CONFIG_DIR="$WORKSPACE_GLAB_DIR" exec "$REAL_GLAB" "$@"
