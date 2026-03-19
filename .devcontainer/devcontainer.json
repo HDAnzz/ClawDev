@@ -1,0 +1,36 @@
+{
+  "name": "ClawDev",
+  "dockerComposeFile": ["../docker-compose.yml"],
+  "service": "openclaw-gateway",
+  "workspaceFolder": "/app/ClawDev",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "forwardPorts": [18789, 8929],
+  "portsAttributes": {
+    "18789": {
+      "label": "OpenClaw Gateway",
+      "onAutoForward": "openPreview"
+    },
+    "8929": {
+      "label": "GitLab",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-vscode.powershell",
+        "ms-azuretools.vscode-docker"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.linting.enabled": true
+      }
+    }
+  },
+  "postCreateCommand": "cd /app/ClawDev && uv sync",
+  "remoteUser": "node"
+}
