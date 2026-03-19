@@ -60,15 +60,19 @@ services:
       - USER_UID=1000
       - USER_GID=1000
       - GITEA__server__HTTP_PORT=3000
-      - GITEA__server__SSH_PORT=2424
-      - GITEA__server__SSH_LISTEN_PORT=22
+#      - GITEA__server__SSH_PORT=2424
+#      - GITEA__server__SSH_LISTEN_PORT=22
       - GITEA__server__ROOT_URL=http://localhost:3000
       - GITEA__database__DB_TYPE=sqlite3
       - GITEA__actions__ENABLED=false        # 不需要 Actions，关掉省资源
       - TZ=${OPENCLAW_TZ:-UTC}
+      - GITEA__repository__FORCE_PRIVATE=false
+      - GITEA__repository__DEFAULT_PRIVATE=public
+      - GITEA__service__ALLOW_ONLY_INTERNAL_REGISTRATION=true
+      - GITEA__repository__DEFAULT_PUSH_CREATE_PRIVATE=false
     ports:
       - "3000:3000"
-      - "2424:22"
+#      - "2424:22"
     volumes:
       - ./volumes/gitea:/data
       - /etc/timezone:/etc/timezone:ro
