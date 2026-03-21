@@ -1,29 +1,33 @@
 {
   "name": "ClawDev",
-  "dockerComposeFile": ["../docker-compose.yml"],
+  "dockerComposeFile": [
+    "../docker-compose.yml"
+  ],
   "service": "openclaw-gateway",
   "workspaceFolder": "/app/ClawDev",
-  "features": {
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
-  },
-  "forwardPorts": [18789, 8929],
+  "forwardPorts": [18789, 3000],
   "portsAttributes": {
     "18789": {
       "label": "OpenClaw Gateway",
       "onAutoForward": "openPreview"
     },
-    "8929": {
-      "label": "GitLab",
+    "3000": {
+      "label": "Gitea",
       "onAutoForward": "openBrowser"
     }
   },
   "customizations": {
     "vscode": {
       "extensions": [
+        "ms-ceintl.vscode-language-pack-zh-hans",
+        "oderwat.indent-rainbow",
         "ms-python.python",
         "ms-python.vscode-pylance",
-        "ms-vscode.powershell",
-        "ms-azuretools.vscode-docker"
+        "ms-python.vscode-python-envs",
+        "ms-python.debugpy",
+        "ms-python.isort",
+        "ms-python.pylint",
+        "ms-python.black-formatter"
       ],
       "settings": {
         "python.defaultInterpreterPath": "/usr/local/bin/python",
