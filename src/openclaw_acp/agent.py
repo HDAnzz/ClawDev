@@ -27,16 +27,16 @@ class OpenClawAgent:
     @require_api_key("OPENCLAW_GATEWAY_TOKEN")
     def __init__(
         self,
-        gateway_url: str = None,
-        agent: str = "main",
-        cwd: str = "/",
+        gateway_url: Optional[str] = None,
+        agent: Optional[str] = None,
+        cwd: Optional[str] = None,
         auto_start: bool = True,
     ):
         self.gateway_url = gateway_url or os.getenv(
             "OPENCLAW_GATEWAY_URL", "ws://127.0.0.1:18789"
         )
-        self.agent = agent
-        self.cwd = cwd
+        self.agent = agent or "main"
+        self.cwd = cwd or "/home/node/.openclaw/workspace-{}".format(self.agent.replace("_", "-")).lower()
 
         self._proc = None
         self._recv_queue = Queue()
