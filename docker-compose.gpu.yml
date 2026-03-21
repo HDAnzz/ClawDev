@@ -1,0 +1,15 @@
+# GPU 配置覆盖文件
+# 使用方式: docker compose -f docker-compose.yml -f docker-compose.gpu.yml --profile gpu up -d
+# 注意：仅在宿主机有 NVIDIA GPU 时使用
+
+services:
+  openclaw-gateway:
+    profiles:
+      - gpu
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

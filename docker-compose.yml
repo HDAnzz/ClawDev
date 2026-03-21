@@ -8,7 +8,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - OPENCLAW_QMD_CUDA=false
+        - OPENCLAW_QMD_CUDA=${OPENCLAW_QMD_CUDA:-false}
     image: openclaw:custom
     networks:
       - openclaw-net
@@ -18,10 +18,13 @@ services:
       OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN:-}
       TZ: ${OPENCLAW_TZ:-UTC}
       GITEA_HOST: http://gitea:3000
-      NODE_LLAMA_CPP_CUDA: "false"
+      NODE_LLAMA_CPP_CUDA: ${OPENCLAW_QMD_CUDA:-false}
     volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
       - ${OPENCLAW_CONFIG_DIR:-~/.openclaw}:/home/node/.openclaw
       - ${OPENCLAW_WORKSPACE_DIR:-~/.openclaw/workspace}:/home/node/.openclaw/workspace
+    group_add:
+      - ${DOCKER_GID:-1001}
     ports:
       - "${OPENCLAW_GATEWAY_PORT:-18789}:18789"
       - "${OPENCLAW_BRIDGE_PORT:-18790}:18790"
