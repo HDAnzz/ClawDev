@@ -15,14 +15,15 @@ services:
     environment:
       HOME: /home/node
       TERM: xterm-256color
+      OPENCLAW_CONFIG_PATH: ${OPENCLAW_CONFIG_HOST:-/home/node/.openclaw}/openclaw.json
+      OPENCLAW_STATE_DIR: ${OPENCLAW_CONFIG_HOST:-/home/node/.openclaw}
       OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN:-}
       TZ: ${OPENCLAW_TZ:-UTC}
       GITEA_HOST: http://gitea:3000
       NODE_LLAMA_CPP_CUDA: ${OPENCLAW_QMD_CUDA:-false}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ${OPENCLAW_CONFIG_DIR:-~/.openclaw}:/home/node/.openclaw
-      - ${OPENCLAW_WORKSPACE_DIR:-~/.openclaw/workspace}:/home/node/.openclaw/workspace
+      - ${OPENCLAW_CONFIG_HOST:-/home/node/.openclaw}:${OPENCLAW_CONFIG_HOST:-/home/node/.openclaw}
       - .:/app/ClawDev
     group_add:
       - ${DOCKER_GID:-1001}

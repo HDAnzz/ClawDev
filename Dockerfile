@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 # 基于 openclaw:local 扩展，新增 Homebrew、tea、QMD
-# 构建命令：docker build -f Dockerfile.openclaw-custom -t openclaw:custom .
+# 构建命令：docker build -t openclaw:custom .
 
 FROM openclaw:local
 
@@ -65,10 +65,10 @@ RUN install -m 0755 -d /etc/apt/keyrings && \
     chmod a+r /etc/apt/keyrings/docker.asc && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://mirrors.aliyun.com/docker-ce/linux/debian $(. /etc/os-release && echo "$VERSION_CODENAME") stable" > /etc/apt/sources.list.d/docker.list && \
     apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends docker-ce-cli && \
+    DEBIAN_FRONTEND=noninteractive     apt-get install -y --no-install-recommends docker-ce-cli && \
     rm -rf /var/lib/apt/lists/*
 
-RUN groupadd -r docker && usermod -aG docker node
+RUN groupadd -r docker 2>/dev/null || true && usermod -aG docker node
 
 # NVIDIA 环境变量（使用 GPU profile 时生效）
 ENV NVIDIA_VISIBLE_DEVICES=all
