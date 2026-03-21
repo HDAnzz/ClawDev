@@ -6,7 +6,7 @@ import subprocess
 import threading
 import uuid
 from queue import Queue, Empty
-from typing import Optional
+from typing import AsyncGenerator, Generator, Optional
 
 from .utils import require_api_key
 
@@ -181,6 +181,85 @@ class OpenClawAgent:
             loop.run_in_executor(None, self.step, message, timeout),
             timeout=timeout,
         )
+
+    def stream(self, message: str, timeout: int = 120) -> AsyncGenerator[str, None]:
+        async def _stream():
+            loop = asyncio.get_event_loop()
+            q: asyncio.Queue = asyncio.Queue()
+
+            def _collector():
+                try:
+                    for chunk in self._stream_internal(message, timeout):
+                        asyncio.run_coroutine_threadsafe(q.put(chunk), loop)
+                    asyncio.run_coroutine_threadsafe(q.put(None), loop)
+                except Exception as e:
+                    asyncio.run_coroutine_threadsafe(q.put(e), loop)
+
+            threading.Thread(target=_collector, daemon=True).start()
+
+            while True:
+                item = await q.get()
+                if item is None:
+                    break
+                if isinstance(item, Exception):
+                    raise item
+                yield item
+
+        return _stream()
+
+    def _stream_internal(
+        self, message: str, timeout: int = 120
+    ) -> Generator[str, None, None]:
+        if not self._proc or not self._session_id:
+            raise RuntimeError("请先调用 start()")
+
+        req_id = str(uuid.uuid4())
+        resp_q: Queue = Queue()
+
+        with self._lock:
+            self._pending[req_id] = resp_q
+
+        self._write(
+            {
+                "jsonrpc": "2.0",
+                "id": req_id,
+                "method": "session/prompt",
+                "params": {
+                    "sessionId": self._session_id,
+                    "prompt": [{"type": "text", "text": message}],
+                },
+            }
+        )
+
+        try:
+            resp = resp_q.get(timeout=timeout)
+        except Empty:
+            raise TimeoutError(f"等待 session/prompt 响应超时（{timeout}s）")
+
+        if "error" in resp:
+            raise RuntimeError(f"[ACP error] {resp['error']}")
+
+        while True:
+            try:
+                msg = self._recv_queue.get(timeout=30)
+            except Empty:
+                break
+
+            method = msg.get("method")
+            if method == "session/update":
+                params = msg.get("params", {})
+                update = params.get("update", {})
+                if update.get("sessionUpdate") == "agent_message_chunk":
+                    content = update.get("content", {})
+                    if content.get("type") == "text":
+                        yield content.get("text", "")
+                for part in params.get("parts", []):
+                    if part.get("type") == "text":
+                        yield part.get("text", "")
+                if params.get("stopReason"):
+                    break
+            elif method == "session/error":
+                raise RuntimeError(f"[session error] {msg.get('params')}")
 
     def _initialize(self, timeout: int = 15):
         req_id = "init-1"
