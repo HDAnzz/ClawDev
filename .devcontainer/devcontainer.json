@@ -30,7 +30,7 @@
         "ms-python.black-formatter"
       ],
       "settings": {
-        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.defaultInterpreterPath": "/app/ClawDev/.venv/bin/python",
         "python.linting.enabled": true
       }
     }
