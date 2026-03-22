@@ -44,7 +44,8 @@ confirm() {
 agent_exists() {
     local agent_name="$1"
     # Check if agent exists by trying to list it
-    if openclaw agents list | grep -q "^$agent_name$"; then
+    # Use exact match to avoid partial matches
+    if openclaw agents list 2>/dev/null | grep -xq "$agent_name"; then
         return 0  # Agent exists
     else
         return 1  # Agent does not exist
