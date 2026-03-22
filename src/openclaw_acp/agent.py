@@ -403,7 +403,7 @@ class OpenClawAgent:
             elif method == "session/error":
                 raise RuntimeError(f"[session error] {msg.get('params')}")
 
-    def _initialize(self, timeout: int = 15) -> None:
+    def _initialize(self, timeout: int = 60) -> None:
         """
         发送 ACP 初始化握手。
 
@@ -416,8 +416,7 @@ class OpenClawAgent:
         """
         req_id = "init-1"
         resp_q: Queue = Queue()
-        with self._lock:
-            self._pending[req_id] = resp_q
+        self._pending[req_id] = resp_q
 
         self._write(
             {
@@ -456,8 +455,7 @@ class OpenClawAgent:
         """
         req_id = "sess-1"
         resp_q: Queue = Queue()
-        with self._lock:
-            self._pending[req_id] = resp_q
+        self._pending[req_id] = resp_q
 
         self._write(
             {
