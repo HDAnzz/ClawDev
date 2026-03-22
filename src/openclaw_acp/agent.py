@@ -105,6 +105,9 @@ class OpenClawAgent:
         self._started: bool = False
         self._loop: Optional[asyncio.AbstractEventLoop] = None
         self._thread: Optional[threading.Thread] = None
+        self._initialization_response: Optional[str] = (
+            None  # Store the response to /new command
+        )
 
         if auto_start:
             self.start()
@@ -118,6 +121,7 @@ class OpenClawAgent:
         2. 启动 stdout/stderr 读取线程
         3. 发送 initialize 握手
         4. 创建新会话
+        5. 发送初始化消息 "/new"
 
         Raises:
             TimeoutError: 握手或会话创建超时
@@ -162,6 +166,10 @@ class OpenClawAgent:
 
             self._initialize()
             self._session_id = self._new_session()
+
+            # Send initialization message "/new" and store the response
+            self._send_initialization_message()
+
             self._started = True
 
     def stop(self) -> None:
@@ -566,6 +574,27 @@ class OpenClawAgent:
             if line:
                 print(f"[ACP stderr] {line}")
 
+    def _send_initialization_message(self, timeout: int = 30) -> None:
+        """
+        发送初始化消息 "/new" 并存储响应。
+
+        Args:
+            timeout: 超时时间（秒）
+        """
+        if not self._proc or not self._session_id:
+            raise RuntimeError("请先调用 start()")
+
+        try:
+            logger.debug("Sending initialization message: /new")
+            response = self.step("/new", timeout=timeout)
+            self._initialization_response = response
+            logger.debug(
+                "Initialization response: %s", response[:100] if response else "None"
+            )
+        except Exception as e:
+            logger.warning("Failed to send initialization message: %s", e)
+            self._initialization_response = None
+
     def __enter__(self) -> "OpenClawAgent":
         """上下文管理器入口，自动启动 Agent。"""
         self.start()
@@ -579,3 +608,13 @@ class OpenClawAgent:
         """析构时自动停止 Agent。"""
         if hasattr(self, "_started"):
             self.stop()
+
+    @property
+    def initialization_response(self) -> Optional[str]:
+        """
+        获取初始化消息 "/new" 的响应。
+
+        Returns:
+            初始化响应文本，如果未发送或失败则返回 None
+        """
+        return self._initialization_response
