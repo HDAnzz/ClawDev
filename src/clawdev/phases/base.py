@@ -26,7 +26,6 @@ class Phase(ABC):
         self.user_role = phase_config.get("user_role_name", "")
         self.phase_prompt = phase_config.get("phase_prompt", [])
 
-    @abstractmethod
     def execute(self, env: ChatEnv, agent_adapter) -> ChatEnv:
         """
         Execute this phase of the development process.
@@ -38,7 +37,20 @@ class Phase(ABC):
         Returns:
             Updated environment after phase execution
         """
-        pass
+        # Render prompt for this phase
+        prompt = self.render_prompt(env)
+
+        # Send prompt to agent and get response
+        # Pass the role information to the adapter
+        if hasattr(self, "assistant_role") and self.assistant_role:
+            response = agent_adapter.send(prompt, role=self.assistant_role)
+        else:
+            response = agent_adapter.send(prompt)
+
+        # Update environment with agent response
+        self.update_env(env, response)
+
+        return env
 
     def render_prompt(self, env: ChatEnv) -> str:
         """
