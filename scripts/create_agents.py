@@ -4,15 +4,28 @@ Script to create all required OpenClaw agents for the ClawDev framework.
 
 import sys
 import subprocess
+import os
 
 
 def create_agent(agent_name):
     """Create an OpenClaw agent with the given name."""
     print(f"Creating agent: {agent_name}")
     try:
-        # Use openclaw agents add command to create the agent
+        # Create workspace directory
+        workspace_dir = f"/home/anzz/.openclaw/workspace-{agent_name.lower()}"
+        os.makedirs(workspace_dir, exist_ok=True)
+
+        # Use openclaw agents add command to create the agent in non-interactive mode
         subprocess.run(
-            ["openclaw", "agents", "add", agent_name],
+            [
+                "openclaw",
+                "agents",
+                "add",
+                agent_name,
+                "--non-interactive",
+                "--workspace",
+                workspace_dir,
+            ],
             capture_output=True,
             text=True,
             cwd="/app/ClawDev",
