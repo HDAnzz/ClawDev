@@ -24,6 +24,7 @@ import json
 import os
 import subprocess
 import threading
+import time
 import uuid
 from queue import Empty, Queue
 from typing import AsyncGenerator, Generator, Optional
@@ -123,43 +124,44 @@ class OpenClawAgent:
             TimeoutError: 握手或会话创建超时
             RuntimeError: 初始化失败
         """
-        if self._started:
-            return
+        with self._lock:
+            if self._started:
+                return
 
-        cmd = [
-            "openclaw",
-            "acp",
-            "--url",
-            self.gateway_url,
-            "--session",
-            f"agent:{self.agent}:{self._session_suffix}",
-            "--reset-session",
-        ]
+            cmd = [
+                "openclaw",
+                "acp",
+                "--url",
+                self.gateway_url,
+                "--session",
+                f"agent:{self.agent}:{self._session_suffix}",
+                "--reset-session",
+            ]
 
-        env = {
-            **os.environ,
-            "OPENCLAW_HIDE_BANNER": "1",
-            "OPENCLAW_SUPPRESS_NOTES": "1",
-            "NODE_TLS_REJECT_UNAUTHORIZED": "0",
-        }
+            env = {
+                **os.environ,
+                "OPENCLAW_HIDE_BANNER": "1",
+                "OPENCLAW_SUPPRESS_NOTES": "1",
+                "NODE_TLS_REJECT_UNAUTHORIZED": "0",
+            }
 
-        self._proc = subprocess.Popen(
-            cmd,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            bufsize=1,
-            env=env,
-        )
+            self._proc = subprocess.Popen(
+                cmd,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                bufsize=1,
+                env=env,
+            )
 
-        self._thread = threading.Thread(target=self._read_stdout, daemon=True)
-        self._thread.start()
-        threading.Thread(target=self._read_stderr, daemon=True).start()
+            self._thread = threading.Thread(target=self._read_stdout, daemon=True)
+            self._thread.start()
+            threading.Thread(target=self._read_stderr, daemon=True).start()
 
-        self._initialize()
-        self._session_id = self._new_session()
-        self._started = True
+            self._initialize()
+            self._session_id = self._new_session()
+            self._started = True
 
     def stop(self) -> None:
         """
@@ -229,22 +231,27 @@ class OpenClawAgent:
             }
         )
 
-        try:
-            resp = resp_q.get(timeout=timeout)
-        except Empty:
-            raise TimeoutError(f"等待 session/prompt 响应超时（{timeout}s）")
-
-        if "error" in resp:
-            raise RuntimeError(f"[ACP error] {resp['error']}")
-
-        result = resp.get("result", {})
-
+        resp = None
         collected = []
+        deadline = time.time() + timeout
+
         while True:
+            remaining = deadline - time.time()
+            if remaining <= 0:
+                raise TimeoutError(f"等待 session/prompt 响应超时（{timeout}s）")
+
+            if resp is None:
+                try:
+                    resp = resp_q.get(timeout=min(remaining, 0.5))
+                except Empty:
+                    continue
+
             try:
-                msg = self._recv_queue.get(timeout=2)
+                msg = self._recv_queue.get(timeout=min(remaining, 0.5))
             except Empty:
-                break
+                if resp is not None:
+                    break
+                continue
 
             method = msg.get("method")
             if method == "session/update":
@@ -257,11 +264,13 @@ class OpenClawAgent:
                 for part in params.get("parts", []):
                     if part.get("type") == "text":
                         collected.append(part.get("text", ""))
-                if params.get("stopReason"):
-                    break
             elif method == "session/error":
                 raise RuntimeError(f"[session error] {msg.get('params')}")
 
+        if "error" in resp:
+            raise RuntimeError(f"[ACP error] {resp['error']}")
+
+        result = resp.get("result", {})
         if not collected and result.get("parts"):
             collected = [
                 p.get("text", "") for p in result["parts"] if p.get("type") == "text"
