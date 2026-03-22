@@ -11,18 +11,18 @@ def create_agent(agent_name):
     print(f"Creating agent: {agent_name}")
     try:
         # Use openclaw agents add command to create the agent
-        result = subprocess.run(
+        subprocess.run(
             ["openclaw", "agents", "add", agent_name],
             capture_output=True,
             text=True,
             cwd="/app/ClawDev",
+            check=True,  # This will raise CalledProcessError if the command fails
         )
-        if result.returncode == 0:
-            print(f"Successfully created agent: {agent_name}")
-            return True
-        else:
-            print(f"Failed to create agent {agent_name}: {result.stderr}")
-            return False
+        print(f"Successfully created agent: {agent_name}")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to create agent {agent_name}: {e.stderr}")
+        return False
     except Exception as e:
         print(f"Failed to create agent {agent_name}: {e}")
         return False
