@@ -76,8 +76,10 @@ class ChatChain:
             context_lines = session_context_template
             if isinstance(context_lines, list):
                 context_lines = "\n".join(context_lines)
-            session_context = context_lines.format(task=self.env.task_prompt)
             for role in self.agent_adapter.agent_configs.keys():
+                session_context = context_lines.format(
+                    task=self.env.task_prompt, role_name=role
+                )
                 self.agent_adapter.set_session_context(role, session_context)
 
     def execute_chain(self) -> None:
