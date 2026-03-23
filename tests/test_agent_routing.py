@@ -13,7 +13,7 @@ import pytest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from clawdev.adapter.agent_adapter import AgentAdapter
-from clawdev.phases.base import Phase
+from clawdev.phases.base import SimplePhase
 from clawdev.env.env import ChatEnv
 
 
@@ -119,7 +119,7 @@ class TestAgentRouting:
             pytest.fail(f"{phase_name} has no assistant_role_name")
 
         # Create phase and render prompt
-        phase = Phase(config)
+        phase = SimplePhase(config)
         prompt = phase.render_prompt(chat_env)
 
         # Verify prompt was rendered

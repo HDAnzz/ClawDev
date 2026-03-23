@@ -1,22 +1,22 @@
 """
-Base phase class for ClawDev framework.
+Base phase classes for ClawDev framework.
 
 Defines the abstract interface and common functionality for all development phases.
+- Phase: Abstract base class defining the interface
+- SimplePhase: Single dialog phase execution
 """
 
 import logging
+import re
+from abc import ABC, abstractmethod
 from typing import Dict, Any
 from ..env.env import ChatEnv
 
 logger = logging.getLogger(__name__)
 
 
-class Phase:
+class Phase(ABC):
     """Base class for all development phases."""
-
-    def render_prompt(self, env: ChatEnv) -> str:
-        """Render prompt for backward compatibility. Returns initiator prompt."""
-        return self.render_initiator_prompt(env)
 
     def __init__(self, phase_config: Dict[str, Any]):
         """
@@ -31,74 +31,25 @@ class Phase:
         self.user_role = phase_config.get("user_role_name", "")
         self.max_dialog_turns = phase_config.get("max_dialog_turns", 5)
         self.dialog_turn = 0
+        self.phase_env: Dict[str, Any] = {}
 
+    @abstractmethod
     def execute(self, env: ChatEnv, agent_adapter) -> ChatEnv:
         """
-        Execute this phase as a dialog between two agents.
-
-        The user_role agent initiates the conversation, and assistant_role responds.
-        Since the backend has memory, we don't pass conversation history.
+        Execute this phase.
 
         Args:
             env: Current development environment
             agent_adapter: Adapter for communicating with AI agents
 
         Returns:
-            Updated environment after dialog execution
+            Updated environment after phase execution
         """
-        logger.debug("[Phase] execute() phase=%s", self.phase_name)
-        self.dialog_turn = 0
+        pass
 
-        initiator_prompt = self.render_initiator_prompt(env)
-        logger.debug(
-            "[Phase] initiator_prompt() returned %d chars", len(initiator_prompt)
-        )
-
-        response = agent_adapter.send(initiator_prompt, role=self.user_role)
-        logger.debug("[Phase] initiator_response returned %d chars", len(response))
-
-        if self._should_end_dialog(response):
-            self.update_env(env, response)
-            return env
-
-        self.dialog_turn += 1
-        other_role = self.user_role
-        dialog_prompt = self.render_dialog_prompt(other_role, response)
-        response = agent_adapter.send(dialog_prompt, role=self.assistant_role)
-        logger.debug("[Phase] responder_response returned %d chars", len(response))
-
-        if self._should_end_dialog(response):
-            self.update_env(env, response)
-            return env
-
-        self.dialog_turn += 1
-
-        while self.dialog_turn < self.max_dialog_turns:
-            other_role = self.user_role
-            dialog_prompt = self.render_dialog_prompt(other_role, response)
-            response = agent_adapter.send(dialog_prompt, role=self.user_role)
-            logger.debug(
-                "[Phase] continuation response returned %d chars", len(response)
-            )
-
-            if self._should_end_dialog(response):
-                break
-
-            self.dialog_turn += 1
-            other_role = self.assistant_role
-            dialog_prompt = self.render_dialog_prompt(other_role, response)
-            response = agent_adapter.send(dialog_prompt, role=self.assistant_role)
-            logger.debug(
-                "[Phase] continuation response returned %d chars", len(response)
-            )
-
-            if self._should_end_dialog(response):
-                break
-
-            self.dialog_turn += 1
-
-        self.update_env(env, response)
-        return env
+    def render_prompt(self, env: ChatEnv) -> str:
+        """Render prompt for backward compatibility. Returns initiator prompt."""
+        return self.render_initiator_prompt(env)
 
     def render_initiator_prompt(self, env: ChatEnv) -> str:
         """Render the instruction for initiating the dialog."""
@@ -108,13 +59,23 @@ class Phase:
         context = self.phase_config.get("context", "")
         context = self._format_prompt(context, env)
 
-        return prompt_template.format(
-            phase_name=self.phase_name,
-            context=context,
-            the_other_role=self.assistant_role,
-            assistant_role=self.assistant_role,
-            user_role=self.user_role,
-        )
+        if "{context}" in prompt_template:
+            return prompt_template.format(
+                phase_name=self.phase_name,
+                context=context,
+                the_other_role=self.assistant_role,
+                assistant_role=self.assistant_role,
+                user_role=self.user_role,
+            )
+        else:
+            prompt_template = self._format_prompt(prompt_template, env)
+            return prompt_template.format(
+                phase_name=self.phase_name,
+                context=context,
+                the_other_role=self.assistant_role,
+                assistant_role=self.assistant_role,
+                user_role=self.user_role,
+            )
 
     def _get_phase_context(self, env: ChatEnv) -> str:
         """Get the phase-specific context based on current phase."""
@@ -154,8 +115,6 @@ class Phase:
 
     def _should_end_dialog(self, response: str) -> bool:
         """Check if the dialog should end."""
-        import re
-
         result_pattern = r"<result>\s*(.+?)\s*</result>"
         match = re.search(result_pattern, response, re.DOTALL)
         return match is not None
@@ -187,8 +146,6 @@ class Phase:
     def update_env(self, env: ChatEnv, response: str) -> None:
         """Update environment based on agent response."""
         print(f"update_env: response={response}")
-        import re
-
         result_pattern = r"<result>\s*(.+?)\s*</result>"
         match = re.search(result_pattern, response, re.DOTALL)
         if match:
@@ -199,3 +156,94 @@ class Phase:
                 env.modality = result_content
             elif self.phase_name == "LanguageChoose":
                 env.language = result_content
+            elif self.phase_name == "Coding":
+                env.description = result_content
+            elif self.phase_name == "CodeComplete":
+                env.unimplemented_file = result_content
+            elif self.phase_name == "CodeReviewComment":
+                env.comments = result_content
+            elif self.phase_name == "TestErrorSummary":
+                env.error_summary = result_content
+            elif self.phase_name == "EnvironmentDoc":
+                env.docs = result_content
+            elif self.phase_name == "Manual":
+                env.manual = result_content
+            elif self.phase_name == "ArtDesign":
+                env.images = result_content
+            elif self.phase_name == "ArtIntegration":
+                env.art_integration_result = result_content
+
+
+class SimplePhase(Phase):
+    """Single dialog phase execution."""
+
+    def execute(self, env: ChatEnv, agent_adapter) -> ChatEnv:
+        """
+        Execute this phase as a dialog between two agents.
+
+        The user_role agent initiates the conversation, and assistant_role responds.
+
+        Args:
+            env: Current development environment
+            agent_adapter: Adapter for communicating with AI agents
+
+        Returns:
+            Updated environment after dialog execution
+        """
+        logger.debug("[SimplePhase] execute() phase=%s", self.phase_name)
+        self.dialog_turn = 0
+
+        initiator_prompt = self.render_initiator_prompt(env)
+        logger.debug(
+            "[SimplePhase] initiator_prompt() returned %d chars", len(initiator_prompt)
+        )
+
+        response = agent_adapter.send(initiator_prompt, role=self.user_role)
+        logger.debug(
+            "[SimplePhase] initiator_response returned %d chars", len(response)
+        )
+
+        if self._should_end_dialog(response):
+            self.update_env(env, response)
+            return env
+
+        self.dialog_turn += 1
+        other_role = self.user_role
+        dialog_prompt = self.render_dialog_prompt(other_role, response)
+        response = agent_adapter.send(dialog_prompt, role=self.assistant_role)
+        logger.debug(
+            "[SimplePhase] responder_response returned %d chars", len(response)
+        )
+
+        if self._should_end_dialog(response):
+            self.update_env(env, response)
+            return env
+
+        self.dialog_turn += 1
+
+        while self.dialog_turn < self.max_dialog_turns:
+            other_role = self.user_role
+            dialog_prompt = self.render_dialog_prompt(other_role, response)
+            response = agent_adapter.send(dialog_prompt, role=self.user_role)
+            logger.debug(
+                "[SimplePhase] continuation response returned %d chars", len(response)
+            )
+
+            if self._should_end_dialog(response):
+                break
+
+            self.dialog_turn += 1
+            other_role = self.assistant_role
+            dialog_prompt = self.render_dialog_prompt(other_role, response)
+            response = agent_adapter.send(dialog_prompt, role=self.assistant_role)
+            logger.debug(
+                "[SimplePhase] continuation response returned %d chars", len(response)
+            )
+
+            if self._should_end_dialog(response):
+                break
+
+            self.dialog_turn += 1
+
+        self.update_env(env, response)
+        return env

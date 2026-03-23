@@ -178,10 +178,10 @@ class TestPhaseSequence:
         recorder = WorkflowRecorder(agent_configs)
         adapter = recorder.create_adapter()
 
-        from clawdev.phases.demand_analysis import DemandAnalysisPhase
+        from clawdev.phases.base import SimplePhase
 
         # Create phase
-        phase = DemandAnalysisPhase(phase_config["DemandAnalysis"])
+        phase = SimplePhase(phase_config["DemandAnalysis"])
 
         # Create env
         env = ChatEnv("/tmp/test")
@@ -201,9 +201,9 @@ class TestPhaseSequence:
         recorder = WorkflowRecorder(agent_configs)
         adapter = recorder.create_adapter()
 
-        from clawdev.phases.language_choose import LanguageChoosePhase
+        from clawdev.phases.base import SimplePhase
 
-        phase = LanguageChoosePhase(phase_config["LanguageChoose"])
+        phase = SimplePhase(phase_config["LanguageChoose"])
 
         env = ChatEnv("/tmp/test")
         env.task_prompt = "Create a calculator"
@@ -221,9 +221,9 @@ class TestPhaseSequence:
         recorder = WorkflowRecorder(agent_configs)
         adapter = recorder.create_adapter()
 
-        from clawdev.phases.coding import CodingPhase
+        from clawdev.phases.base import SimplePhase
 
-        phase = CodingPhase(phase_config["Coding"])
+        phase = SimplePhase(phase_config["Coding"])
 
         env = ChatEnv("/tmp/test")
         env.task_prompt = "Create a calculator"
@@ -244,7 +244,7 @@ class TestMessageContent:
 
     def test_demand_analysis_prompt_contains_task(self, agent_configs, phase_config):
         """Test that DemandAnalysis prompt contains task information."""
-        from clawdev.phases.demand_analysis import DemandAnalysisPhase
+        from clawdev.phases.base import SimplePhase
 
         adapter = AgentAdapter(agent_configs)
 
@@ -257,7 +257,7 @@ class TestMessageContent:
 
         adapter.send = capture_send
 
-        phase = DemandAnalysisPhase(phase_config["DemandAnalysis"])
+        phase = SimplePhase(phase_config["DemandAnalysis"])
 
         env = ChatEnv("/tmp/test")
         env.task_prompt = "Create a calculator app"
@@ -275,7 +275,7 @@ class TestMessageContent:
 
     def test_coding_prompt_contains_language(self, agent_configs, phase_config):
         """Test that Coding prompt contains language information."""
-        from clawdev.phases.coding import CodingPhase
+        from clawdev.phases.base import SimplePhase
 
         adapter = AgentAdapter(agent_configs)
 
@@ -287,7 +287,7 @@ class TestMessageContent:
 
         adapter.send = capture_send
 
-        phase = CodingPhase(phase_config["Coding"])
+        phase = SimplePhase(phase_config["Coding"])
 
         env = ChatEnv("/tmp/test")
         env.task_prompt = "Create a calculator"

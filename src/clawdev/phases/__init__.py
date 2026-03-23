@@ -2,29 +2,17 @@
 Phases package for ClawDev framework.
 
 Contains all development phases organized by function.
+Phase hierarchy:
+- Phase: Abstract base class defining the interface
+- SimplePhase: Single dialog phase execution
+- ComposedPhase: Loop execution of multiple sub-phases
 """
 
-# Import all phase classes for easy access
-from .base import Phase
-from .demand_analysis import DemandAnalysisPhase
-from .language_choose import LanguageChoosePhase
-from .coding import CodingPhase, CodeCompletePhase
-from .code_review import CodeReviewCommentPhase, CodeReviewModificationPhase
-from .testing import TestErrorSummaryPhase, TestModificationPhase
-from .environment_doc import EnvironmentDocPhase, ManualPhase
+from .base import Phase, SimplePhase
 from .composed_phase import ComposedPhase
 
 __all__ = [
     "Phase",
-    "DemandAnalysisPhase",
-    "LanguageChoosePhase",
-    "CodingPhase",
-    "CodeCompletePhase",
-    "CodeReviewCommentPhase",
-    "CodeReviewModificationPhase",
-    "TestErrorSummaryPhase",
-    "TestModificationPhase",
-    "EnvironmentDocPhase",
-    "ManualPhase",
+    "SimplePhase",
     "ComposedPhase",
 ]
