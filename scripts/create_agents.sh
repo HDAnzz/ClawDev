@@ -91,6 +91,12 @@ create_agent() {
     # Use openclaw agents add command to create the agent in non-interactive mode
     if openclaw agents add "$agent_name" --non-interactive --workspace "$workspace_dir"; then
         print_status "Successfully created agent: $agent_name"
+        
+        # Configure sandbox settings for the agent
+        print_status "Configuring sandbox for agent: $agent_name"
+        openclaw config set "agents.list.${agent_name,,}.sandbox.workspaceAccess" "rw"
+        openclaw config set "agents.list.${agent_name,,}.sandbox.docker.network" "bridge"
+        
         return 0
     else
         print_error "Failed to create agent: $agent_name"
