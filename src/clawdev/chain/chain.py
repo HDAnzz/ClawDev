@@ -7,9 +7,8 @@ Orchestrates the complete software development process through configured phases
 import os
 import json
 import logging
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any, Optional
 from ..env.env import ChatEnv
-from ..phases.base import Phase
 
 logger = logging.getLogger(__name__)
 
@@ -68,11 +67,18 @@ class ChatChain:
         self.env.task_prompt = task_prompt
 
     def make_recruitment(self) -> None:
-        """Register roles in the environment."""
-        # In a full implementation, this would register roles with the environment
-        # For now, we'll just ensure the environment exists
+        """Register roles in the environment and set up agent contexts."""
         if self.env is None:
             raise RuntimeError("Environment not initialized")
+
+        session_context_template = self.chain_config.get("session_context_template")
+        if session_context_template and self.env.task_prompt:
+            context_lines = session_context_template
+            if isinstance(context_lines, list):
+                context_lines = "\n".join(context_lines)
+            session_context = context_lines.format(task=self.env.task_prompt)
+            for role in self.agent_adapter.agent_configs.keys():
+                self.agent_adapter.set_session_context(role, session_context)
 
     def execute_chain(self) -> None:
         """Execute all phases in the chain."""
@@ -140,10 +146,6 @@ class ChatChain:
                 from ..phases.environment_doc import EnvironmentDocPhase
 
                 phase = EnvironmentDocPhase(phase_config)
-            elif phase_name == "Manual":
-                from ..phases.manual import ManualPhase
-
-                phase = ManualPhase(phase_config)
             else:
                 print(f"Unknown phase: {phase_name}")
                 return

@@ -4,7 +4,7 @@ Chat environment for ClawDev framework.
 Manages the state and data throughout the software development process.
 """
 
-from typing import Dict, List, Any, Optional
+from typing import Dict
 import os
 import json
 
