@@ -17,6 +17,13 @@
     }
   },
   "customizations": {
+    "jetbrains": {
+      "settings": {
+        "com.intellij:app:EditorSettings.soft_wrap_file_masks": "*.md; *.txt; *.rst; *.adoc; *.json",
+        "com.intellij:app:HttpConfigurable.use_proxy_pac": true,
+        "com.intellij:app:Vcs-Log-App-Settings.show_changes_from_parents": true
+      }
+    },
     "vscode": {
       "extensions": [
         "ms-ceintl.vscode-language-pack-zh-hans",
