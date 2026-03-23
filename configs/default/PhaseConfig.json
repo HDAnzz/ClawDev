@@ -4,7 +4,7 @@
     "user_role_name": "Chief Executive Officer",
     "max_dialog_turns": 6,
     "initiator_prompt": [
-      "You are {user_role}.",
+      "You are {user_role}. We need to start a discussion with {assistant_role} about the current task. Send a message to {assistant_role} to begin the discussion.",
       "",
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
       "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
@@ -26,7 +26,7 @@
     "user_role_name": "Chief Executive Officer",
     "max_dialog_turns": 4,
     "initiator_prompt": [
-      "You are {user_role}.",
+      "You are {user_role}. We need to start a discussion with {assistant_role} about the current task. Send a message to {assistant_role} to begin the discussion.",
       "",
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
       "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
@@ -46,7 +46,7 @@
     "user_role_name": "Chief Technology Officer",
     "max_dialog_turns": 8,
     "initiator_prompt": [
-      "You are {user_role}.",
+      "You are {user_role}. We need to start a discussion with {assistant_role} about the current task. Send a message to {assistant_role} to begin the discussion.",
       "",
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
       "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
@@ -68,7 +68,7 @@
     "user_role_name": "Chief Creative Officer",
     "max_dialog_turns": 4,
     "initiator_prompt": [
-      "You are {user_role}.",
+      "You are {user_role}. We need to start a discussion with {assistant_role} about the current task. Send a message to {assistant_role} to begin the discussion.",
       "",
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
       "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
@@ -89,7 +89,7 @@
     "user_role_name": "Chief Creative Officer",
     "max_dialog_turns": 4,
     "initiator_prompt": [
-      "You are {user_role}.",
+      "You are {user_role}. We need to start a discussion with {assistant_role} about the current task. Send a message to {assistant_role} to begin the discussion.",
       "",
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
       "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
@@ -111,7 +111,7 @@
     "user_role_name": "Chief Technology Officer",
     "max_dialog_turns": 6,
     "initiator_prompt": [
-      "You are {user_role}.",
+      "You are {user_role}. We need to start a discussion with {assistant_role} about the current task. Send a message to {assistant_role} to begin the discussion.",
       "",
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
       "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
@@ -131,7 +131,7 @@
     "user_role_name": "Programmer",
     "max_dialog_turns": 6,
     "initiator_prompt": [
-      "You are {user_role}.",
+      "You are {user_role}. We need to start a discussion with {assistant_role} about the current task. Send a message to {assistant_role} to begin the discussion.",
       "",
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
       "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
@@ -159,7 +159,7 @@
     "user_role_name": "Code Reviewer",
     "max_dialog_turns": 6,
     "initiator_prompt": [
-      "You are {user_role}.",
+      "You are {user_role}. We need to start a discussion with {assistant_role} about the current task. Send a message to {assistant_role} to begin the discussion.",
       "",
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
       "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
@@ -178,7 +178,7 @@
     "user_role_name": "Software Test Engineer",
     "max_dialog_turns": 4,
     "initiator_prompt": [
-      "You are {user_role}.",
+      "You are {user_role}. We need to start a discussion with {assistant_role} about the current task. Send a message to {assistant_role} to begin the discussion.",
       "",
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
       "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
@@ -199,7 +199,7 @@
     "user_role_name": "Software Test Engineer",
     "max_dialog_turns": 6,
     "initiator_prompt": [
-      "You are {user_role}.",
+      "You are {user_role}. We need to start a discussion with {assistant_role} about the current task. Send a message to {assistant_role} to begin the discussion.",
       "",
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
       "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
@@ -219,7 +219,7 @@
     "user_role_name": "Chief Technology Officer",
     "max_dialog_turns": 4,
     "initiator_prompt": [
-      "You are {user_role}.",
+      "You are {user_role}. We need to start a discussion with {assistant_role} about the current task. Send a message to {assistant_role} to begin the discussion.",
       "",
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
       "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
@@ -240,7 +240,7 @@
     "user_role_name": "Chief Executive Officer",
     "max_dialog_turns": 4,
     "initiator_prompt": [
-      "You are {user_role}.",
+      "You are {user_role}. We need to start a discussion with {assistant_role} about the current task. Send a message to {assistant_role} to begin the discussion.",
       "",
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
       "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
