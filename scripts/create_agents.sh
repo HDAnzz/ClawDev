@@ -43,12 +43,10 @@ confirm() {
 # Function to check if agent already exists
 agent_exists() {
     local agent_name="$1"
-    # Check if agent exists by parsing the list output
-    # The list shows agent names in the format "- agent_name (Display Name)"
     if openclaw agents list 2>/dev/null | grep -q "^- ${agent_name,,} ("; then
-        return 0  # Agent exists
+        return 0
     else
-        return 1  # Agent does not exist
+        return 1
     fi
 }
 
@@ -56,13 +54,42 @@ agent_exists() {
 remove_agent() {
     local agent_name="$1"
     print_status "Removing existing agent: $agent_name"
-    if openclaw agents delete "$agent_name"; then
+    if openclaw agents delete "$agent_name" --force; then
         print_status "Successfully removed agent: $agent_name"
         return 0
     else
         print_error "Failed to remove agent: $agent_name"
         return 1
     fi
+}
+
+# Function to configure sandbox for agent
+configure_agent_sandbox() {
+    local agent_id="$1"
+    
+    python3 << EOF
+import json
+
+config_path = "/home/anzz/.openclaw/openclaw.json"
+with open(config_path, "r") as f:
+    config = json.load(f)
+
+agents_list = config.get("agents", {}).get("list", [])
+for agent in agents_list:
+    if agent.get("id") == "$agent_id":
+        agent["sandbox"] = {
+            "workspaceAccess": "rw",
+            "docker": {
+                "network": "bridge"
+            }
+        }
+        break
+
+with open(config_path, "w") as f:
+    json.dump(config, f, indent=2)
+
+print("Config updated for agent: $agent_id")
+EOF
 }
 
 # Function to create an OpenClaw agent
@@ -84,18 +111,18 @@ create_agent() {
         fi
     fi
     
-    # Create workspace directory
-    local workspace_dir="/home/anzz/.openclaw/workspace-${agent_name,,}"
+    # Create workspace directory - convert to lowercase, keep underscores
+    local agent_id=$(echo "$agent_name" | tr '[:upper:]' '[:lower:]')
+    local workspace_dir="/home/anzz/.openclaw/workspace-${agent_id}"
     mkdir -p "$workspace_dir"
     
     # Use openclaw agents add command to create the agent in non-interactive mode
     if openclaw agents add "$agent_name" --non-interactive --workspace "$workspace_dir"; then
         print_status "Successfully created agent: $agent_name"
         
-        # Configure sandbox settings for the agent
-        print_status "Configuring sandbox for agent: $agent_name"
-        openclaw config set "agents.list.${agent_name,,}.sandbox.workspaceAccess" "rw"
-        openclaw config set "agents.list.${agent_name,,}.sandbox.docker.network" "bridge"
+        # Configure sandbox settings for this specific agent
+        print_status "Configuring sandbox for agent: $agent_id"
+        configure_agent_sandbox "$agent_id"
         
         return 0
     else
@@ -107,7 +134,6 @@ create_agent() {
 # Main function to create all required agents
 main() {
     # List of agents to create based on RoleConfig.json
-    # Each role gets its own unique agent name to avoid confusion
     local agents=(
         "Chief_Executive_Officer"
         "Chief_Product_Officer"
@@ -128,7 +154,6 @@ main() {
     
     for agent_name in "${agents[@]}"; do
         if create_agent "$agent_name"; then
-            # Check if agent was actually created or skipped
             if agent_exists "$agent_name"; then
                 ((success_count++))
             else
