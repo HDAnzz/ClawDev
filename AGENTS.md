@@ -2,50 +2,27 @@
 
 ## Project Overview
 
-This project (`clawdev`) is a Python wrapper for OpenClaw/ChatDev that provides an Agent PCP (Agent Communication Protocol) client for automated code generation. The main entry point is `src/main.py` and the core package is `src/openclaw_acp/`.
+This project (`clawdev`) is a Python framework that combines OpenClaw ACP (Agent Client Protocol) with a multi-agent collaboration system for automated code generation. It provides:
+- ACP client for communicating with OpenClaw agents
+- ChatChain orchestration for managing multi-agent dialog workflows
+- Phase-based development process (demand analysis, coding, review, testing, etc.)
+
+The main entry point is `src/main.py` and the core packages are `src/openclaw_acp/` and `src/clawdev/`.
 
 ## Build, Lint, and Test Commands
 
-### Running the Project
+### Running Tests and Linting in Docker Container
+The project runs in Docker. Code directory is mounted at `/app/ClawDev` in the container. Always use docker exec to run tools from the project's virtual environment to avoid corrupting the local venv.
+
 ```bash
-# Activate virtual environment
-.venv\Scripts\activate  # Windows
-
-# Run main entry point
-python -m src.main
-
-# Or run directly
-python src/main.py
-```
-
-### Linting and Formatting
-```bash
-# Format code with Black
-black src/
-
-# Run Ruff linter
-ruff check src/
-
-# Fix auto-fixable issues
-ruff check --fix src/
-```
-
-### Running Tests
-```bash
-# Install pytest first (if not in venv)
-uv pip install pytest
-
-# Run all tests
-pytest tests/
+# Run all tests in docker container
+docker exec -w /app/ClawDev clawdev-openclaw-gateway-1 /app/ClawDev/.venv/bin/pytest tests/ -v
 
 # Run a single test file
-pytest tests/test_agent.py
+docker exec -w /app/ClawDev clawdev-openclaw-gateway-1 /app/ClawDev/.venv/bin/pytest tests/test_agent.py -v
 
-# Run a single test function
-pytest tests/test_agent.py::TestOpenClawAgent::test_default_gateway_url
-
-# Run tests matching a pattern
-pytest tests/ -k "test_default"
+# Run linting in docker container
+docker exec -w /app/ClawDev clawdev-openclaw-gateway-1 /app/ClawDev/.venv/bin/ruff check src/ tests/
 ```
 
 ## Code Style Guidelines
@@ -114,16 +91,36 @@ if not api_key:
 ### File Structure
 ```
 src/
-├── main.py              # Entry point
-└── openclaw_acp/
-    ├── __init__.py      # Package exports
-    ├── agent.py         # Core OpenClawAgent class
-    └── utils.py         # Utility functions
+├── main.py                  # Entry point
+├── openclaw_acp/            # OpenClaw ACP client
+│   ├── __init__.py
+│   ├── agent.py             # OpenClawAgent class
+│   └── utils.py
+└── clawdev/                 # ClawDev multi-agent framework
+    ├── __init__.py
+    ├── adapter/
+    │   └── agent_adapter.py # Agent communication adapter
+    ├── chain/
+    │   └── chain.py         # ChatChain orchestration
+    ├── env/
+    │   └── env.py           # ChatEnv state management
+    └── phases/
+        ├── base.py          # Phase base class with dialog execution
+        ├── demand_analysis.py
+        ├── language_choose.py
+        └── coding.py
 
 tests/
 ├── __init__.py
-├── test_agent.py        # Tests for OpenClawAgent
-└── test_utils.py        # Tests for utility functions
+├── test_agent.py            # Tests for OpenClawAgent
+├── test_agent_routing.py    # Tests for agent routing
+├── test_clawdev.py          # Basic functionality tests
+├── test_clawdev_workflow.py # Workflow integration tests
+└── test_utils.py
+
+configs/default/
+├── ChatChainConfig.json     # Chain configuration with session context
+└── PhaseConfig.json          # Phase configurations with prompts
 ```
 
 ## Environment Variables
@@ -132,56 +129,6 @@ tests/
 - `OPENCLAW_HIDE_BANNER`: Set to `1` to hide banner
 - `OPENCLAW_SUPPRESS_NOTES`: Set to `1` to suppress notes
 - Copy `.env.template` to `.env` and configure as needed
-
-## Common Development Tasks
-
-### Adding a New Feature
-1. Create a new module in `src/openclaw_acp/`
-2. Export it in `src/openclaw_acp/__init__.py`
-3. Add type hints and docstrings
-4. Format with Black and lint with Ruff
-
-### Running the Agent
-```python
-from openclaw_acp import OpenClawAgent
-
-agent = OpenClawAgent(auto_start=True)
-response = agent("Your message here")
-agent.stop()
-```
-
-### Using Async Methods
-```python
-import asyncio
-from openclaw_acp import OpenClawAgent
-
-async def main():
-    agent = OpenClawAgent(auto_start=True)
-    response = await agent.async_step("Your message")
-    agent.stop()
-
-asyncio.run(main())
-```
-
-### Using Streaming
-```python
-import asyncio
-from openclaw_acp import OpenClawAgent
-
-async def main():
-    agent = OpenClawAgent(auto_start=True)
-    async for chunk in agent.stream("Your message"):
-        print(chunk, end="")
-    agent.stop()
-
-asyncio.run(main())
-```
-
-## Notes for Agentic Coding
-- This project wraps the OpenClaw CLI tool via subprocess
-- The agent communicates over WebSocket using JSON-RPC 2.0 protocol
-- When modifying the agent, ensure proper session and request ID handling
-- Test changes with actual OpenClaw gateway when possible
 
 ## OpenClaw ACP Protocol
 
@@ -208,42 +155,88 @@ asyncio.run(main())
 - The `cwd` parameter determines the agent's working directory
 - Default workspace: `~/.openclaw/workspace-{agent_name}`
 
-### Conversation History
-- OpenClaw ACP is one-way message passing (prompt -> response)
-- To maintain conversation history, inject history into the prompt text
-- Example pattern:
-```python
-history_text = "\n".join([f"[{i}] {msg}" for i, msg in enumerate(history)])
-prompt = f"[History]\n{history_text}\n\n[Current]: {new_message}"
-```
+## ClawDev Multi-Agent System
 
-## ClawDev Phase System
+### Dialog-Based Phase Execution
+
+Each phase executes a dialog between two agents:
+1. **user_role**: Initiates the conversation by sending instructions
+2. **assistant_role**: Receives instructions and responds
+
+The dialog continues until the `<result>` tag is detected in a response.
 
 ### Phase Configuration
+
 Each phase in `configs/default/PhaseConfig.json` specifies:
-- `assistant_role_name`: The agent role that responds
-- `user_role_name`: The agent role that initiated the request
-- `phase_prompt`: Template for generating prompts
+```json
+{
+    "assistant_role_name": "Chief Product Officer",
+    "user_role_name": "Chief Executive Officer",
+    "max_dialog_turns": 6,
+    "initiator_prompt": [
+        "You are {user_role}.",
+        "IMPORTANT: Write ONLY a message to instruct {assistant_role}. Do NOT simulate responses.",
+        "Your message will be sent directly to {assistant_role}. Wait for their response.",
+        "{context}"
+    ],
+    "context": "【Current Phase】 DemandAnalysis\n\n【Task】\n...",
+    "dialog_prompt": "{the_other_role} said: {content}"
+}
+```
+
+### Dialog Termination
+
+The dialog ends when a message contains `<result>` tags with content:
+```xml
+<result>Application</result>
+```
+
+Agents should:
+- Only use `<result>` tags when they have reached a conclusion
+- Not include `<result>` in messages until discussion is complete
+
+### Session Context
+
+Session context is sent to agents during initialization via `ChatChain.make_recruitment()`:
+```json
+"session_context_template": [
+    "【Session Context】",
+    "ClawDev is a software company that combines multi-agent collaboration with OpenClaw AI.",
+    "The mission is to successfully complete the task assigned by the customer.",
+    "",
+    "You will collaborate with ClawDev colleagues to build products that meet user expectations.",
+    "Collaboration with colleagues is done in dialogue format: RoleName: message content",
+    "",
+    "【User Task】",
+    "{task}",
+    "",
+    "IMPORTANT: This is just background information. Do NOT take any actions yet.",
+    "Wait for further instructions before starting any work."
+]
+```
 
 ### Agent Adapter
+
 - `AgentAdapter` maps role names to OpenClaw agent names
 - The `send(message, role)` method routes messages to the correct agent
-- Each agent gets its own working directory based on `OPENCLAW_CONFIG_HOST`
+- Each agent gets its own working directory
 
 ### Agent Role Mapping
-| Role | Agent Name | Workspace |
-|------|------------|----------|
-| Chief Executive Officer | chief_executive_officer | workspace-chief_executive_officer |
-| Chief Product Officer | chief_product_officer | workspace-chief_product_officer |
-| Chief Technology Officer | chief_technology_officer | workspace-chief_technology_officer |
-| Programmer | programmer | workspace-programmer |
-| Code Reviewer | code_reviewer | workspace-code_reviewer |
-| Software Test Engineer | software_test_engineer | workspace-software_test_engineer |
-| Chief Creative Officer | chief_creative_officer | workspace-chief_creative_officer |
-| Counselor | counselor | workspace-counselor |
-| Chief Human Resource Officer | chief_human_resource_officer | workspace-chief_human_resource_officer |
+| Role | Agent Name |
+|------|------------|
+| Chief Executive Officer | chief_executive_officer |
+| Chief Product Officer | chief_product_officer |
+| Chief Technology Officer | chief_technology_officer |
+| Programmer | programmer |
+| Code Reviewer | code_reviewer |
+| Software Test Engineer | software_test_engineer |
+| Chief Creative Officer | chief_creative_officer |
+| Counselor | counselor |
+| Chief Human Resource Officer | chief_human_resource_officer |
 
-## Pending Tasks
-- [ ] Implement multi-agent conversation with conversation history injection
-- [ ] Support role-playing where agents interact with each other autonomously
-- [ ] Add support for streaming responses in AgentAdapter
+## Notes for Agentic Coding
+
+- This project combines OpenClaw agents with a dialog orchestration layer
+- The agent communicates over WebSocket using JSON-RPC 2.0 protocol
+- Each phase manages a dialog between two agents
+- Test changes with actual OpenClaw gateway when possible
