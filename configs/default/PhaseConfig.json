@@ -6,17 +6,20 @@
     "initiator_prompt": [
       "You are {user_role}.",
       "",
-      "IMPORTANT: Write ONLY a message to instruct {assistant_role}. Do NOT simulate responses.",
-      "Your message will be sent directly to {assistant_role}. Wait for their response.",
+      "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
+      "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
       "",
-      "IMPORTANT: Do NOT use <result> tags until BOTH parties agree on a conclusion.",
-      "Notify {assistant_role} that they must also NOT use <result> tags until a conclusion is reached.",
+      "[RESULT TAGS] Notify {assistant_role} that they must NOT use <result> tags until BOTH agree on a conclusion.",
+      "You also must NOT use <result> tags until we reach agreement.",
+      "Example of premature use (WRONG): 'I think Application is good <result>Application</result>'",
+      "Example of correct use (RIGHT): 'I recommend Application. Do you agree?' then wait for response, then '<result>Application</result>'",
       "",
-      "[Task] Analyze requirements and recommend product modality.",
+      "[TASK] Analyze user requirements and recommend the best product modality.",
       "",
-      "[Context] {context}"
+      "[CONTEXT] {context}"
     ],
-    "context": "Task: {task}\n\nOptions:\n- Image: charts, graphs\n- Document: .docx files\n- PowerPoint: .pptx files\n- Excel: .xlsx files\n- PDF: .pdf files\n- Website: .html files\n- Application: Python software, tools\n- Dashboard: real-time panels\n- Mind Map: idea maps"
+    "context": "User Request: {task}\n\nAvailable Modalities:\n- Image: charts, graphs, visualizations\n- Document: .docx files\n- PowerPoint: .pptx files\n- Excel: .xlsx files\n- PDF: .pdf files\n- Website: .html files\n- Application: Python software, tools, games\n- Dashboard: real-time information panels\n- Mind Map: idea organization diagrams",
+    "dialog_prompt": "{the_other_role} said: {content}"
   },
   "LanguageChoose": {
     "assistant_role_name": "Chief Technology Officer",
@@ -25,17 +28,18 @@
     "initiator_prompt": [
       "You are {user_role}.",
       "",
-      "IMPORTANT: Write ONLY a message to instruct {assistant_role}. Do NOT simulate responses.",
-      "Your message will be sent directly to {assistant_role}. Wait for their response.",
+      "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
+      "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
       "",
-      "IMPORTANT: Do NOT use <result> tags until BOTH parties agree on a conclusion.",
-      "Notify {assistant_role} that they must also NOT use <result> tags until a conclusion is reached.",
+      "[RESULT TAGS] Both you AND {assistant_role} must NOT use <result> tags until BOTH agree on a language.",
+      "Discuss pros and cons of different languages before reaching a conclusion.",
       "",
-      "[Task] Recommend the best programming language for this project.",
+      "[TASK] Recommend the most suitable programming language for this project.",
       "",
-      "[Context] {context}"
+      "[CONTEXT] {context}"
     ],
-    "context": "Task: {task}\nModality: {modality}"
+    "context": "User Request: {task}\nSelected Modality: {modality}\n\nConsider: project complexity, maintainability, library availability, performance requirements",
+    "dialog_prompt": "{the_other_role} said: {content}"
   },
   "Coding": {
     "assistant_role_name": "Programmer",
@@ -44,19 +48,20 @@
     "initiator_prompt": [
       "You are {user_role}.",
       "",
-      "IMPORTANT: Write ONLY a message to instruct {assistant_role}. Do NOT simulate responses.",
-      "Your message will be sent directly to {assistant_role}. Wait for their response.",
+      "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
+      "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
       "",
-      "IMPORTANT: Do NOT use <result> tags until implementation is complete and verified.",
-      "Notify {assistant_role} that they must also NOT use <result> tags until verified.",
+      "[RESULT TAGS] Both you AND {assistant_role} must NOT use <result> tags until implementation is complete and VERIFIED working.",
+      "Do NOT conclude until you have tested the code and confirmed it runs without errors.",
       "",
-      "[Task] Implement the software according to requirements.",
+      "[TASK] Implement the software according to requirements.",
       "",
-      "[Important] Use Write tool for code files. Use Bash tool for testing.",
+      "[TOOL USAGE] Write code files with Write tool. Run commands with Bash tool. Test thoroughly before concluding.",
       "",
-      "[Context] {context}"
+      "[CONTEXT] {context}"
     ],
-    "context": "Task: {task}\nDescription: {description}\nModality: {modality}\nLanguage: {language}"
+    "context": "User Request: {task}\nDescription: {description}\nTarget: {modality}\nLanguage: {language}",
+    "dialog_prompt": "{the_other_role} said: {content}"
   },
   "ArtDesign": {
     "assistant_role_name": "Programmer",
@@ -65,17 +70,19 @@
     "initiator_prompt": [
       "You are {user_role}.",
       "",
-      "IMPORTANT: Write ONLY a message to instruct {assistant_role}. Do NOT simulate responses.",
-      "Your message will be sent directly to {assistant_role}. Wait for their response.",
+      "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
+      "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
       "",
-      "IMPORTANT: Do NOT use <result> tags until design is verified complete.",
-      "Notify {assistant_role} that they must also NOT use <result> tags until verified.",
+      "[RESULT TAGS] Both you AND {assistant_role} must NOT use <result> tags until design is complete and approved.",
       "",
-      "[Task] Design decorative images for the GUI.",
+      "[TASK] Design decorative images for the application GUI.",
       "",
-      "[Context] {context}"
+      "[REQUIREMENTS] Images should match application theme, be visually appealing, and appropriate for the UI.",
+      "",
+      "[CONTEXT] {context}"
     ],
-    "context": "Task: {task}\nLanguage: {language}"
+    "context": "User Request: {task}\nLanguage: {language}\nApplication Type: {modality}",
+    "dialog_prompt": "{the_other_role} said: {content}"
   },
   "ArtIntegration": {
     "assistant_role_name": "Programmer",
@@ -84,19 +91,20 @@
     "initiator_prompt": [
       "You are {user_role}.",
       "",
-      "IMPORTANT: Write ONLY a message to instruct {assistant_role}. Do NOT simulate responses.",
-      "Your message will be sent directly to {assistant_role}. Wait for their response.",
+      "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
+      "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
       "",
-      "IMPORTANT: Do NOT use <result> tags until images are integrated and verified.",
-      "Notify {assistant_role} that they must also NOT use <result> tags until verified.",
+      "[RESULT TAGS] Both you AND {assistant_role} must NOT use <result> tags until images are integrated and displayed correctly.",
       "",
-      "[Task] Integrate designed images into GUI code.",
+      "[TASK] Integrate the designed images into the GUI code.",
       "",
-      "[Important] Use self.* to avoid garbage collection:\nself.image = ImageTk.PhotoImage(Image.open(\"./image.png\").resize((50, 50)))",
+      "[MEMORY MANAGEMENT] Use instance variables to prevent garbage collection:",
+      "self.image = ImageTk.PhotoImage(Image.open('./image.png').resize((50, 50)))",
       "",
-      "[Context] {context}"
+      "[CONTEXT] {context}"
     ],
-    "context": "Task: {task}\nImages: {images}"
+    "context": "Images to integrate: {images}\nApplication: {task}",
+    "dialog_prompt": "{the_other_role} said: {content}"
   },
   "CodeComplete": {
     "assistant_role_name": "Programmer",
@@ -105,17 +113,18 @@
     "initiator_prompt": [
       "You are {user_role}.",
       "",
-      "IMPORTANT: Write ONLY a message to instruct {assistant_role}. Do NOT simulate responses.",
-      "Your message will be sent directly to {assistant_role}. Wait for their response.",
+      "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
+      "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
       "",
-      "IMPORTANT: Do NOT use <result> tags until all methods are implemented.",
-      "Notify {assistant_role} that they must also NOT use <result> tags until complete.",
+      "[RESULT TAGS] Both you AND {assistant_role} must NOT use <result> tags until ALL unimplemented methods are complete.",
+      "Verify each method works correctly before concluding.",
       "",
-      "[Task] Implement methods in unimplemented files.",
+      "[TASK] Implement all methods in unimplemented files.",
       "",
-      "[Context] {context}"
+      "[CONTEXT] {context}"
     ],
-    "context": "Task: {task}\nLanguage: {language}\nUnimplemented: {unimplemented_file}"
+    "context": "User Request: {task}\nLanguage: {language}\nUnimplemented files: {unimplemented_file}",
+    "dialog_prompt": "{the_other_role} said: {content}"
   },
   "CodeReviewComment": {
     "assistant_role_name": "Code Reviewer",
@@ -124,19 +133,26 @@
     "initiator_prompt": [
       "You are {user_role}.",
       "",
-      "IMPORTANT: Write ONLY a message to instruct {assistant_role}. Do NOT simulate responses.",
-      "Your message will be sent directly to {assistant_role}. Wait for their response.",
+      "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
+      "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
       "",
-      "IMPORTANT: Do NOT use <result> tags until all issues are identified.",
-      "Notify {assistant_role} that they must also NOT use <result> tags until identified.",
+      "[RESULT TAGS] Both you AND {assistant_role} must NOT use <result> tags until ALL issues are identified.",
+      "Be thorough - don't miss potential bugs or improvements.",
       "",
-      "[Task] Review code and identify issues.",
+      "[TASK] Review code thoroughly and identify all issues.",
       "",
-      "[Standards]\n1. All classes imported correctly\n2. All methods implemented\n3. Necessary comments present\n4. No potential bugs\n5. Conforms to requirements\n6. Logic is sound",
+      "[REVIEW CHECKLIST]",
+      "1. All imports present and correct",
+      "2. All methods fully implemented (no TODOs/pass)",
+      "3. Code includes necessary comments",
+      "4. No potential bugs or errors",
+      "5. Meets requirements specification",
+      "6. Logic is sound and efficient",
       "",
-      "[Context] {context}"
+      "[CONTEXT] {context}"
     ],
-    "context": "Task: {task}\nLanguage: {language}"
+    "context": "Code to review: {task}\nLanguage: {language}",
+    "dialog_prompt": "{the_other_role} said: {content}"
   },
   "CodeReviewModification": {
     "assistant_role_name": "Programmer",
@@ -145,17 +161,17 @@
     "initiator_prompt": [
       "You are {user_role}.",
       "",
-      "IMPORTANT: Write ONLY a message to instruct {assistant_role}. Do NOT simulate responses.",
-      "Your message will be sent directly to {assistant_role}. Wait for their response.",
+      "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
+      "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
       "",
-      "IMPORTANT: Do NOT use <result> tags until modifications are verified complete.",
-      "Notify {assistant_role} that they must also NOT use <result> tags until verified.",
+      "[RESULT TAGS] Both you AND {assistant_role} must NOT use <result> tags until all modifications are complete and tests pass.",
       "",
-      "[Task] Modify code based on review comments.",
+      "[TASK] Fix all code issues identified in the review.",
       "",
-      "[Context] {context}"
+      "[CONTEXT] {context}"
     ],
-    "context": "Language: {language}\nComments: {comments}"
+    "context": "Language: {language}\nReview comments: {comments}",
+    "dialog_prompt": "{the_other_role} said: {content}"
   },
   "TestErrorSummary": {
     "assistant_role_name": "Programmer",
@@ -164,17 +180,19 @@
     "initiator_prompt": [
       "You are {user_role}.",
       "",
-      "IMPORTANT: Write ONLY a message to instruct {assistant_role}. Do NOT simulate responses.",
-      "Your message will be sent directly to {assistant_role}. Wait for their response.",
+      "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
+      "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
       "",
-      "IMPORTANT: Do NOT use <result> tags until analysis is complete.",
-      "Notify {assistant_role} that they must also NOT use <result> tags until complete.",
+      "[RESULT TAGS] Both you AND {assistant_role} must NOT use <result> tags until analysis is complete.",
       "",
-      "[Task] Analyze test reports and summarize bugs.",
+      "[TASK] Analyze test reports and categorize all bugs found.",
       "",
-      "[Context] {context}"
+      "[OUTPUT FORMAT] Summarize as: 'Critical: X bugs, Major: Y bugs, Minor: Z bugs'",
+      "",
+      "[CONTEXT] {context}"
     ],
-    "context": "Language: {language}\nTest reports: {test_reports}"
+    "context": "Language: {language}\nTest reports: {test_reports}",
+    "dialog_prompt": "{the_other_role} said: {content}"
   },
   "TestModification": {
     "assistant_role_name": "Programmer",
@@ -183,17 +201,18 @@
     "initiator_prompt": [
       "You are {user_role}.",
       "",
-      "IMPORTANT: Write ONLY a message to instruct {assistant_role}. Do NOT simulate responses.",
-      "Your message will be sent directly to {assistant_role}. Wait for their response.",
+      "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
+      "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
       "",
-      "IMPORTANT: Do NOT use <result> tags until all tests pass.",
-      "Notify {assistant_role} that they must also NOT use <result> tags until tests pass.",
+      "[RESULT TAGS] Both you AND {assistant_role} must NOT use <result> tags until ALL tests pass.",
+      "Run tests after each fix to verify. Do not conclude until 100% pass rate.",
       "",
-      "[Task] Fix bugs based on test reports.",
+      "[TASK] Fix bugs identified in test reports.",
       "",
-      "[Context] {context}"
+      "[CONTEXT] {context}"
     ],
-    "context": "Language: {language}\nError summary: {error_summary}"
+    "context": "Language: {language}\nBugs to fix: {error_summary}",
+    "dialog_prompt": "{the_other_role} said: {content}"
   },
   "EnvironmentDoc": {
     "assistant_role_name": "Programmer",
@@ -202,19 +221,19 @@
     "initiator_prompt": [
       "You are {user_role}.",
       "",
-      "IMPORTANT: Write ONLY a message to instruct {assistant_role}. Do NOT simulate responses.",
-      "Your message will be sent directly to {assistant_role}. Wait for their response.",
+      "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
+      "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
       "",
-      "IMPORTANT: Do NOT use <result> tags until file is created and verified.",
-      "Notify {assistant_role} that they must also NOT use <result> tags until verified.",
+      "[RESULT TAGS] Both you AND {assistant_role} must NOT use <result> tags until requirements.txt is created and verified.",
       "",
-      "[Task] Create requirements.txt for project dependencies.",
+      "[TASK] Create requirements.txt with all necessary dependencies.",
       "",
-      "[Example]\nnumpy>=1.19.2\npandas>=1.1.4",
+      "[FORMAT] One package per line: 'package>=version' or 'package==version'",
       "",
-      "[Context] {context}"
+      "[CONTEXT] {context}"
     ],
-    "context": "Language: {language}"
+    "context": "Language: {language}",
+    "dialog_prompt": "{the_other_role} said: {content}"
   },
   "Manual": {
     "assistant_role_name": "Chief Product Officer",
@@ -223,18 +242,23 @@
     "initiator_prompt": [
       "You are {user_role}.",
       "",
-      "IMPORTANT: Write ONLY a message to instruct {assistant_role}. Do NOT simulate responses.",
-      "Your message will be sent directly to {assistant_role}. Wait for their response.",
+      "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
+      "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
       "",
-      "IMPORTANT: Do NOT use <result> tags until manual is verified complete.",
-      "Notify {assistant_role} that they must also NOT use <result> tags until verified.",
+      "[RESULT TAGS] Both you AND {assistant_role} must NOT use <result> tags until manual is complete and verified.",
       "",
-      "[Task] Create a user manual in Markdown format.",
+      "[TASK] Create a comprehensive user manual in Markdown format.",
       "",
-      "[Include]\n- Software introduction\n- Installation instructions\n- Feature descriptions\n- User guide",
+      "[REQUIRED SECTIONS]",
+      "- Software Introduction",
+      "- Installation Instructions",
+      "- Feature Descriptions",
+      "- User Guide",
+      "- Troubleshooting (if applicable)",
       "",
-      "[Context] {context}"
+      "[CONTEXT] {context}"
     ],
-    "context": "Task: {task}\nModality: {modality}\nLanguage: {language}"
+    "context": "Software: {task}\nType: {modality}\nLanguage: {language}",
+    "dialog_prompt": "{the_other_role} said: {content}"
   }
 }
