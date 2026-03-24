@@ -105,10 +105,9 @@ src/
     ├── env/
     │   └── env.py           # ChatEnv state management
     └── phases/
-        ├── base.py          # Phase base class with dialog execution
-        ├── demand_analysis.py
-        ├── language_choose.py
-        └── coding.py
+        ├── base.py          # Phase abstract base class
+        ├── simple_phase.py # SimplePhase single dialog
+        └── composed_phase.py # ComposedPhase multi-subphase
 
 tests/
 ├── __init__.py
@@ -165,6 +164,11 @@ Each phase executes a dialog between two agents:
 
 The dialog continues until the `<result>` tag is detected in a response.
 
+### Phase Types
+
+- **SimplePhase**: Single dialog phase execution
+- **ComposedPhase**: Multiple sub-phases executed in a loop
+
 ### Phase Configuration
 
 Each phase in `configs/default/PhaseConfig.json` specifies:
@@ -174,21 +178,22 @@ Each phase in `configs/default/PhaseConfig.json` specifies:
     "user_role_name": "Chief Executive Officer",
     "max_dialog_turns": 6,
     "initiator_prompt": [
-        "You are {user_role}.",
-        "IMPORTANT: Write ONLY a message to instruct {assistant_role}. Do NOT simulate responses.",
-        "Your message will be sent directly to {assistant_role}. Wait for their response.",
-        "{context}"
+        "[MESSAGE] Send a message to {assistant_role} to begin discussing the current task.",
+        "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
+        "[RESULT TAGS] Both parties must NOT use <result> tags until reaching agreement.",
+        "[TASK] Analyze user requirements and recommend the best product modality.",
+        "[CONTEXT] {context}"
     ],
-    "context": "【Current Phase】 DemandAnalysis\n\n【Task】\n...",
+    "context": "User Request: {task}\n\nAvailable Modalities:\n- Image\n- Application\n- ...",
     "dialog_prompt": "{the_other_role} said: {content}"
 }
 ```
 
 ### Dialog Termination
 
-The dialog ends when a message contains `<result>` tags with content:
+The dialog ends when a message contains `<result>` tags:
 ```xml
-<result>Application</result>
+<result>Done</result>
 ```
 
 Agents should:
@@ -200,20 +205,33 @@ Agents should:
 Session context is sent to agents during initialization via `ChatChain.make_recruitment()`:
 ```json
 "session_context_template": [
-    "【Session Context】",
-    "ClawDev is a software company that combines multi-agent collaboration with OpenClaw AI.",
+    "[Session Context]",
+    "Hello! {role_name} from ClawDev.",
+    "This is a system message sent by an automated program.",
+    "",
+    "[Mission]",
     "The mission is to successfully complete the task assigned by the customer.",
     "",
-    "You will collaborate with ClawDev colleagues to build products that meet user expectations.",
-    "Collaboration with colleagues is done in dialogue format: RoleName: message content",
-    "",
-    "【User Task】",
-    "{task}",
-    "",
-    "IMPORTANT: This is just background information. Do NOT take any actions yet.",
-    "Wait for further instructions before starting any work."
+    "[Gitea Workflow]",
+    "- Use 'tea' CLI to interact with Gitea at http://host.docker.internal:3000",
+    "- All code changes should go through PR workflow"
 ]
 ```
+
+### Coding Workflow
+
+The Coding phase is a ComposedPhase consisting of:
+
+1. **CodingInit**: CTO creates Gitea repository
+   - Creates repo using `tea repo create`
+   - Initializes git and pushes to Gitea
+   - Notifies Programmer of repository URL
+
+2. **CodingImprove**: Programmer writes code and creates PR
+   - Creates new branch for each task
+   - Writes/modifies code
+   - Creates PR using `tea pr create`
+   - CTO reviews and approves PR
 
 ### Agent Adapter
 
