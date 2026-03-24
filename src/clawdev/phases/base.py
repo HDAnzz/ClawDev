@@ -90,31 +90,30 @@ class Phase(ABC):
     def _should_end_dialog(self, response: str) -> bool:
         """Check if the dialog should end."""
         result_pattern = r"<result>\s*(.+?)\s*</result>"
-        matches = re.finditer(result_pattern, response, re.DOTALL)
+        matches = re.finditer(result_pattern, response, re.DOTALL | re.IGNORECASE)
         for match in matches:
-            result_content = match.group(1)
             start_pos = match.start()
-            end_pos = match.end()
-            before_result = response[:start_pos]
-            after_result = response[end_pos:]
-            if self._is_inside_quotes(before_result, after_result):
+            if self._is_inside_quotes(response, start_pos):
                 continue
             return True
         return False
 
-    def _is_inside_quotes(self, before: str, after: str) -> bool:
-        """Check if a string segment is enclosed in quotes."""
-        last_single_quote = before.rfind("'")
-        last_double_quote = before.rfind('"')
-        if last_single_quote == -1 and last_double_quote == -1:
-            return False
-        last_quote_pos = max(last_single_quote, last_double_quote)
-        last_quote_char = "'" if last_single_quote > last_double_quote else '"'
-        quote_count_before = before.count(last_quote_char)
-        quote_count_after = after.count(last_quote_char)
-        if quote_count_before % 2 == 1 and quote_count_after > 0:
-            return True
-        return False
+    def _is_inside_quotes(self, text: str, pos: int) -> bool:
+        """Check if position is inside any type of quotes (single, double, backtick)."""
+        in_single = False
+        in_double = False
+        in_backtick = False
+
+        for i in range(pos):
+            char = text[i]
+            if char == "'" and not in_double and not in_backtick:
+                in_single = not in_single
+            elif char == '"' and not in_single and not in_backtick:
+                in_double = not in_double
+            elif char == "`" and not in_single and not in_double:
+                in_backtick = not in_backtick
+
+        return in_single or in_double or in_backtick
 
     def _format_prompt(self, prompt_template: str, env: ChatEnv) -> str:
         """Format prompt template with environment data."""
@@ -144,7 +143,7 @@ class Phase(ABC):
         """Update environment based on agent response."""
         print(f"update_env: response={response}")
         result_pattern = r"<result>\s*(.+?)\s*</result>"
-        matches = list(re.finditer(result_pattern, response, re.DOTALL))
+        matches = list(re.finditer(result_pattern, response, re.DOTALL | re.IGNORECASE))
         result_content = None
         for match in matches:
             content = match.group(1).strip()
@@ -152,7 +151,7 @@ class Phase(ABC):
             end_pos = match.end()
             before_result = response[:start_pos]
             after_result = response[end_pos:]
-            if not self._is_inside_quotes(before_result, after_result):
+            if not self._is_inside_quotes(response, start_pos):
                 result_content = content
                 break
         if result_content:
