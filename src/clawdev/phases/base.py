@@ -17,15 +17,18 @@ logger = logging.getLogger(__name__)
 class Phase(ABC):
     """Base class for all development phases."""
 
-    def __init__(self, phase_config: Dict[str, Any]):
+    def __init__(self, phase_config: Dict[str, Any], phase_name: str = None):
         """
         Initialize phase with configuration.
 
         Args:
             phase_config: Configuration dictionary for this phase
+            phase_name: Optional phase name (if not in config)
         """
         self.phase_config = phase_config
-        self.phase_name = phase_config.get("phase", self.__class__.__name__)
+        self.phase_name = phase_name or phase_config.get(
+            "phase", self.__class__.__name__
+        )
         self.assistant_role = phase_config.get("assistant_role_name", "")
         self.user_role = phase_config.get("user_role_name", "")
         self.max_dialog_turns = phase_config.get("max_dialog_turns", 5)

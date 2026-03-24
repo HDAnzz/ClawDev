@@ -477,7 +477,7 @@ class OpenClawAgent:
         if "error" in resp:
             raise RuntimeError(f"initialize 失败: {resp['error']}")
 
-    def _new_session(self, timeout: int = 120) -> str:
+    def _new_session(self, timeout: int = 600) -> str:
         """
         创建新会话。
 

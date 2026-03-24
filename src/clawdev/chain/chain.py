@@ -120,7 +120,7 @@ class ChatChain:
 
             from ..phases.simple_phase import SimplePhase
 
-            phase = SimplePhase(phase_config)
+            phase = SimplePhase(phase_config, phase_name=phase_name)
 
             self.env = phase.execute(self.env, self.agent_adapter)
 
