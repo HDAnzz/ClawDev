@@ -6,6 +6,30 @@
 - **CLI:** tea
 - **Config:** `~/.config/tea/config.yml`
 
+### Gitea Skill
+
+Refer to `gitea` skill for detailed tea CLI usage. Key commands:
+
+```bash
+tea repo create          # Create a new repository
+tea repos list           # List repositories
+tea pulls               # Manage pull requests
+tea api                 # Make API requests
+```
+
+### API Reference
+
+For API endpoints not covered by tea CLI, use `tea api`:
+
+```bash
+# Example: Add collaborator
+tea api --method PUT "/repos/{owner}/{repo}/collaborators/{username}"
+
+# Get API documentation
+# Use crawl4ai-skill or fetch from:
+# http://localhost:3000/api/swagger
+```
+
 ## Git
 
 - **Config:** `~/.gitconfig`
