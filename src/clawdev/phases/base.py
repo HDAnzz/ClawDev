@@ -170,9 +170,18 @@ class Phase(ABC):
         """Update environment based on agent response."""
         print(f"update_env: response={response}")
         result_pattern = r"<result>\s*(.+?)\s*</result>"
-        match = re.search(result_pattern, response, re.DOTALL)
-        if match:
-            result_content = match.group(1).strip()
+        matches = list(re.finditer(result_pattern, response, re.DOTALL))
+        result_content = None
+        for match in matches:
+            content = match.group(1).strip()
+            start_pos = match.start()
+            end_pos = match.end()
+            before_result = response[:start_pos]
+            after_result = response[end_pos:]
+            if not self._is_inside_quotes(before_result, after_result):
+                result_content = content
+                break
+        if result_content:
             print(f"update_env: result_content={result_content}")
 
             if self.phase_name == "DemandAnalysis":
