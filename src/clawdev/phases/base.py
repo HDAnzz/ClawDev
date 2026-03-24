@@ -99,21 +99,24 @@ class Phase(ABC):
         return False
 
     def _is_inside_quotes(self, text: str, pos: int) -> bool:
-        """Check if position is inside any type of quotes (single, double, backtick)."""
-        in_single = False
-        in_double = False
-        in_backtick = False
+        """Check if position is inside any type of quotes (single, double, backtick).
 
-        for i in range(pos):
-            char = text[i]
-            if char == "'" and not in_double and not in_backtick:
-                in_single = not in_single
-            elif char == '"' and not in_single and not in_backtick:
-                in_double = not in_double
-            elif char == "`" and not in_single and not in_double:
-                in_backtick = not in_backtick
+        Only checks characters immediately surrounding the position.
+        """
+        if pos == 0:
+            return False
 
-        return in_single or in_double or in_backtick
+        prev_char = text[pos - 1]
+        prev_prev_char = text[pos - 2] if pos >= 2 else ""
+
+        if prev_char == '"' or prev_prev_char == '"':
+            return True
+        if prev_char == "'" or prev_prev_char == "'":
+            return True
+        if prev_char == "`" or prev_prev_char == "`":
+            return True
+
+        return False
 
     def _format_prompt(self, prompt_template: str, env: ChatEnv) -> str:
         """Format prompt template with environment data."""
