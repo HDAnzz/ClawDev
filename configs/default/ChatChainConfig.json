@@ -13,9 +13,18 @@
         },
         {
             "phase": "Coding",
-            "phaseType": "SimplePhase",
-            "max_turn_step": 1,
-            "need_reflect": "False"
+            "phaseType": "ComposedPhase",
+            "cycleNum": 3,
+            "composition": [
+                {
+                    "phase": "CodingInit",
+                    "phaseType": "SimplePhase"
+                },
+                {
+                    "phase": "CodingImprove",
+                    "phaseType": "SimplePhase"
+                }
+            ]
         },
         {
             "phase": "CodeCompleteAll",

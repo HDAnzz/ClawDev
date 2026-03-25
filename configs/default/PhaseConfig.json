@@ -86,6 +86,70 @@
     "context": "User Request: {task}\nDescription: {description}\nTarget: {modality}\nLanguage: {language}",
     "dialog_prompt": "{the_other_role} said: {content}"
   },
+  "CodingInit": {
+    "assistant_role_name": "Programmer",
+    "user_role_name": "Chief Technology Officer",
+    "max_dialog_turns": 2,
+    "initiator_prompt": [
+      "[TASK] Create a new repository on Gitea for this project and add Programmer as a member.",
+
+      "[IMPORTANT]",
+      "- The repository MUST be PUBLIC (non-private)",
+      "- Your workspace is already configured with git and tea CLI",
+      "- You can refer to Gitea skill for tea usage details",
+
+      "[GITEA WORKFLOW]",
+      "1. Use 'tea repo create' to create a new PUBLIC repository on Gitea (omit --private flag for public)",
+      "2. Use 'tea api' to add Programmer as a collaborator to the repository",
+      "3. Reply with the repository URL and confirm Programmer has been added",
+
+      "[MESSAGE] Send a message to {assistant_role} to begin setting up the repository.",
+
+      "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
+      "Your message will be sent to {assistant_role}. Wait for their response. DO NOT write both sides of the conversation.",
+
+      "[RESULT TAGS] When repository is created and Programmer is added as member, {assistant_role} should output: <result>Done</result>",
+
+      "After {assistant_role} confirms, output <result>Done</result> to conclude."
+    ],
+    "context": "User Request: {task}\nDescription: {description}\nTarget: {modality}\nLanguage: {language}",
+    "dialog_prompt": "{the_other_role} said: {content}"
+  },
+  "CodingImprove": {
+    "assistant_role_name": "Chief Technology Officer",
+    "user_role_name": "Programmer",
+    "max_dialog_turns": 8,
+    "initiator_prompt": [
+      "[MESSAGE] Send a message to {assistant_role} to begin discussing the current task.",
+      "",
+      "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
+      "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
+      "",
+      "[RESULT TAGS] Both parties must NOT use <result> tags until PR is created and approved.",
+      "When PR is created and approved, {assistant_role} should output: <result>Done</result>",
+      "",
+      "[EFFICIENCY] Be concise. Complete the task efficiently.",
+      "",
+      "[INSTRUCT {assistant_role}] The message must meet the following requirements:",
+      "- Explain the task: improve code and create PR for review",
+      "- This instruction should not have any result XML tags with content, as this will cause the phase to end prematurely.",
+      "Example WRONG: 'Output <result>Done</result> when done.'",
+      "Example CORRECT: 'When PR is approved, put the conclusion into <result></result> to end this stage; this tag must not contain any content beforehand.'",
+      "",
+      "[PHASE TASK] Write or improve code, create branch, commit, and create PR for review.",
+      "",
+      "[GITEA WORKFLOW]",
+      "- Create a new branch for this task",
+      "- Write or modify code as needed",
+      "- Use 'git add', 'git commit', 'git push' to save changes",
+      "- Use 'tea pr create' to create Pull Request",
+      "- Wait for CTO to review and approve the PR",
+      "",
+      "[CONTEXT] {context}"
+    ],
+    "context": "User Request: {task}\nDescription: {description}\nTarget: {modality}\nLanguage: {language}",
+    "dialog_prompt": "{the_other_role} said: {content}"
+  },
   "ArtDesign": {
     "assistant_role_name": "Programmer",
     "user_role_name": "Chief Creative Officer",
