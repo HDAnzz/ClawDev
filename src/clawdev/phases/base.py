@@ -32,6 +32,11 @@ class Phase(ABC):
         self.assistant_role = phase_config.get("assistant_role_name", "")
         self.user_role = phase_config.get("user_role_name", "")
         self.max_dialog_turns = phase_config.get("max_dialog_turns", 5)
+        self.notification_mode = phase_config.get("notification_mode", False)
+
+        if self.notification_mode:
+            self.max_dialog_turns = 1
+
         self.dialog_turn = 0
         self.phase_env: Dict[str, Any] = {}
 

@@ -19,6 +19,7 @@ class SimplePhase(Phase):
         Execute this phase as a dialog between two agents.
 
         The user_role agent initiates the conversation, and assistant_role responds.
+        If assistant_role is empty, this becomes a notification phase (single-agent mode).
 
         Args:
             env: Current development environment
@@ -28,6 +29,25 @@ class SimplePhase(Phase):
             Updated environment after dialog execution
         """
         logger.debug("[SimplePhase] execute() phase=%s", self.phase_name)
+
+        if self.notification_mode:
+            return self._execute_notification(env, agent_adapter)
+
+        return self._execute_dialog(env, agent_adapter)
+
+    def _execute_notification(self, env, agent_adapter) -> ChatEnv:
+        """Execute as a notification phase (single-agent mode)."""
+        logger.debug("[SimplePhase] notification mode for phase=%s", self.phase_name)
+        self.dialog_turn = 0
+
+        initiator_prompt = self.render_initiator_prompt(env)
+        response = agent_adapter.send(initiator_prompt, role=self.user_role)
+
+        self.update_env(env, response)
+        return env
+
+    def _execute_dialog(self, env, agent_adapter) -> ChatEnv:
+        """Execute as a dialog between two agents."""
         self.dialog_turn = 0
 
         initiator_prompt = self.render_initiator_prompt(env)
