@@ -19,17 +19,18 @@ RUN --mount=type=cache,id=openclaw-bookworm-apt-cache,target=/var/cache/apt,shar
       wget && \
     rm -rf /var/lib/apt/lists/*
 
-ENV HOMEBREW_BREW_GIT_REMOTE="https://mirrors.ustc.edu.cn/brew.git"
-ENV HOMEBREW_CASK_GIT_REMOTE="https://mirrors.ustc.edu.cn/homebrew-cask.git"
+ENV HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
 RUN set -eux && \
     mkdir -p /home/linuxbrew/.linuxbrew && \
     chown -R node:node /home/linuxbrew && \
     \
+    git clone --depth=1 https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/install.git brew-install && \
     gosu node env \
       HOME=/home/node \
       NONINTERACTIVE=1 \
-      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" && \
+      /bin/bash brew-install/install.sh && \
     \
+    rm -rf brew-install && \
     gosu node env \
       HOME=/home/node \
       PATH="/home/linuxbrew/.linuxbrew/bin:$PATH" \

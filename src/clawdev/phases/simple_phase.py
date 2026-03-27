@@ -64,6 +64,7 @@ class SimplePhase(Phase):
             self.update_env(env, response)
             return env
 
+        self.dialog_turn += 1
         other_role = self.user_role
         dialog_prompt = self.render_dialog_prompt(other_role, response)
         response = agent_adapter.send(dialog_prompt, role=self.assistant_role)
@@ -78,7 +79,7 @@ class SimplePhase(Phase):
         self.dialog_turn += 1
 
         while self.dialog_turn < self.max_dialog_turns:
-            other_role = self.user_role
+            other_role = self.assistant_role
             dialog_prompt = self.render_dialog_prompt(other_role, response)
             response = agent_adapter.send(dialog_prompt, role=self.user_role)
             logger.debug(
@@ -88,6 +89,7 @@ class SimplePhase(Phase):
             if self._should_end_dialog(response):
                 break
 
+            self.dialog_turn += 1
             other_role = self.assistant_role
             dialog_prompt = self.render_dialog_prompt(other_role, response)
             response = agent_adapter.send(dialog_prompt, role=self.assistant_role)
