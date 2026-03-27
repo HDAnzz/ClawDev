@@ -22,6 +22,18 @@ logger = logging.getLogger(__name__)
 class MockAgentAdapter:
     """Mock adapter for testing without real agent."""
 
+    agent_configs = {
+        "Chief Executive Officer": "chief_executive_officer",
+        "Chief Product Officer": "chief_product_officer",
+        "Chief Technology Officer": "chief_technology_officer",
+        "Programmer": "programmer",
+        "Code Reviewer": "code_reviewer",
+        "Software Test Engineer": "software_test_engineer",
+        "Chief Creative Officer": "chief_creative_officer",
+        "Counselor": "counselor",
+        "Chief Human Resource Officer": "chief_human_resource_officer",
+    }
+
     def send(self, message, role="default"):
         """Mock send method that returns a simple response."""
         print(f"MockAgentAdapter received message: {message[:100]}...")
