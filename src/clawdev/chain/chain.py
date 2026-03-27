@@ -6,9 +6,11 @@ Orchestrates the complete software development process through configured phases
 
 import os
 import json
-from typing import Dict, List, Any, Optional
+import logging
+from typing import Dict, Any, Optional
 from ..env.env import ChatEnv
-from ..phases.base import Phase
+
+logger = logging.getLogger(__name__)
 
 
 class ChatChain:
@@ -29,7 +31,6 @@ class ChatChain:
         # Load configuration files
         self.chain_config = self._load_config("ChatChainConfig.json")
         self.phase_config = self._load_config("PhaseConfig.json")
-        self.role_config = self._load_config("RoleConfig.json")
 
         # Initialize environment
         self.env: Optional[ChatEnv] = None
@@ -65,11 +66,29 @@ class ChatChain:
         self.env.task_prompt = task_prompt
 
     def make_recruitment(self) -> None:
-        """Register roles in the environment."""
-        # In a full implementation, this would register roles with the environment
-        # For now, we'll just ensure the environment exists
+        """Register roles in the environment and set up agent contexts."""
         if self.env is None:
             raise RuntimeError("Environment not initialized")
+
+        session_context_template = self.chain_config.get("session_context_template")
+        if session_context_template and self.env.task_prompt:
+            context_lines = session_context_template
+            if isinstance(context_lines, list):
+                context_lines = "\n".join(context_lines)
+            all_roles = list(self.agent_adapter.agent_configs.keys())
+            for role in all_roles:
+                colleagues = [r for r in all_roles if r != role]
+                colleagues_str = (
+                    ", ".join(colleagues[:-1]) + ", and " + colleagues[-1]
+                    if len(colleagues) > 1
+                    else colleagues[0]
+                )
+                session_context = context_lines.format(
+                    task=self.env.task_prompt,
+                    role_name=role,
+                    colleagues_list=colleagues_str,
+                )
+                self.agent_adapter.set_session_context(role, session_context)
 
     def execute_chain(self) -> None:
         """Execute all phases in the chain."""
@@ -93,122 +112,27 @@ class ChatChain:
         phase_type = phase_item["phaseType"]
 
         if phase_type == "SimplePhase":
-            # Execute a simple phase
             phase_name = phase_item["phase"]
             phase_config = self.phase_config[phase_name]
 
-            # Dynamically create and execute the appropriate phase class
             print(f"Executing phase: {phase_name}")
 
-            # Import the appropriate phase class
-            if phase_name == "DemandAnalysis":
-                from ..phases.demand_analysis import DemandAnalysisPhase
+            from ..phases.simple_phase import SimplePhase
 
-                phase = DemandAnalysisPhase(phase_config)
-            elif phase_name == "LanguageChoose":
-                from ..phases.language_choose import LanguageChoosePhase
+            phase = SimplePhase(phase_config, phase_name=phase_name)
 
-                phase = LanguageChoosePhase(phase_config)
-            elif phase_name == "Coding":
-                from ..phases.coding import CodingPhase
-
-                phase = CodingPhase(phase_config)
-            elif phase_name == "CodeComplete":
-                from ..phases.coding import CodeCompletePhase
-
-                phase = CodeCompletePhase(phase_config)
-            elif phase_name == "CodeReviewComment":
-                from ..phases.code_review import CodeReviewCommentPhase
-
-                phase = CodeReviewCommentPhase(phase_config)
-            elif phase_name == "CodeReviewModification":
-                from ..phases.code_review import CodeReviewModificationPhase
-
-                phase = CodeReviewModificationPhase(phase_config)
-            elif phase_name == "TestErrorSummary":
-                from ..phases.testing import TestErrorSummaryPhase
-
-                phase = TestErrorSummaryPhase(phase_config)
-            elif phase_name == "TestModification":
-                from ..phases.testing import TestModificationPhase
-
-                phase = TestModificationPhase(phase_config)
-            elif phase_name == "EnvironmentDoc":
-                from ..phases.environment_doc import EnvironmentDocPhase
-
-                phase = EnvironmentDocPhase(phase_config)
-            elif phase_name == "Manual":
-                from ..phases.manual import ManualPhase
-
-                phase = ManualPhase(phase_config)
-            else:
-                print(f"Unknown phase: {phase_name}")
-                return
-
-            # Execute the phase
             self.env = phase.execute(self.env, self.agent_adapter)
 
         elif phase_type == "ComposedPhase":
-            # Execute a composed phase with multiple sub-phases
-            cycle_num = phase_item["cycleNum"]
-            composition = phase_item["Composition"]
+            phase_name = phase_item["phase"]
 
-            print(f"Executing composed phase with {cycle_num} cycles")
+            print(f"Executing composed phase: {phase_name}")
 
-            # Execute sub-phases for the specified number of cycles
-            for cycle in range(cycle_num):
-                print(f"Cycle {cycle + 1}")
-                for sub_phase_item in composition:
-                    sub_phase_name = sub_phase_item["phase"]
-                    print(f"  Executing sub-phase: {sub_phase_name}")
+            from ..phases.composed_phase import ComposedPhase
 
-                    # Import the appropriate phase class
-                    if sub_phase_name == "DemandAnalysis":
-                        from ..phases.demand_analysis import DemandAnalysisPhase
+            phase = ComposedPhase(phase_item, config_phase=self.phase_config)
 
-                        phase = DemandAnalysisPhase(sub_phase_item)
-                    elif sub_phase_name == "LanguageChoose":
-                        from ..phases.language_choose import LanguageChoosePhase
-
-                        phase = LanguageChoosePhase(sub_phase_item)
-                    elif sub_phase_name == "Coding":
-                        from ..phases.coding import CodingPhase
-
-                        phase = CodingPhase(sub_phase_item)
-                    elif sub_phase_name == "CodeComplete":
-                        from ..phases.coding import CodeCompletePhase
-
-                        phase = CodeCompletePhase(sub_phase_item)
-                    elif sub_phase_name == "CodeReviewComment":
-                        from ..phases.code_review import CodeReviewCommentPhase
-
-                        phase = CodeReviewCommentPhase(sub_phase_item)
-                    elif sub_phase_name == "CodeReviewModification":
-                        from ..phases.code_review import CodeReviewModificationPhase
-
-                        phase = CodeReviewModificationPhase(sub_phase_item)
-                    elif sub_phase_name == "TestErrorSummary":
-                        from ..phases.testing import TestErrorSummaryPhase
-
-                        phase = TestErrorSummaryPhase(sub_phase_item)
-                    elif sub_phase_name == "TestModification":
-                        from ..phases.testing import TestModificationPhase
-
-                        phase = TestModificationPhase(sub_phase_item)
-                    elif sub_phase_name == "EnvironmentDoc":
-                        from ..phases.environment_doc import EnvironmentDocPhase
-
-                        phase = EnvironmentDocPhase(sub_phase_item)
-                    elif sub_phase_name == "Manual":
-                        from ..phases.manual import ManualPhase
-
-                        phase = ManualPhase(sub_phase_item)
-                    else:
-                        print(f"Unknown sub-phase: {sub_phase_name}")
-                        continue
-
-                    # Execute the phase
-                    self.env = phase.execute(self.env, self.agent_adapter)
+            self.env = phase.execute(self.env, self.agent_adapter)
 
     def post_processing(self) -> None:
         """Perform post-processing steps after chain execution."""

@@ -1,34 +1,49 @@
 """
-Base phase class for ClawDev framework.
+Base phase classes for ClawDev framework.
 
 Defines the abstract interface and common functionality for all development phases.
+- Phase: Abstract base class defining the interface
 """
 
-from abc import ABC, abstractmethod
+import logging
 import re
-from typing import Dict, Any, List
+from abc import ABC, abstractmethod
+from typing import Dict, Any
 from ..env.env import ChatEnv
+
+logger = logging.getLogger(__name__)
 
 
 class Phase(ABC):
-    """Abstract base class for all development phases."""
+    """Base class for all development phases."""
 
-    def __init__(self, phase_config: Dict[str, Any]):
+    def __init__(self, phase_config: Dict[str, Any], phase_name: str = None):
         """
         Initialize phase with configuration.
 
         Args:
             phase_config: Configuration dictionary for this phase
+            phase_name: Optional phase name (if not in config)
         """
         self.phase_config = phase_config
-        self.phase_name = phase_config.get("phase", self.__class__.__name__)
+        self.phase_name = phase_name or phase_config.get(
+            "phase", self.__class__.__name__
+        )
         self.assistant_role = phase_config.get("assistant_role_name", "")
         self.user_role = phase_config.get("user_role_name", "")
-        self.phase_prompt = phase_config.get("phase_prompt", [])
+        self.max_dialog_turns = phase_config.get("max_dialog_turns", 5)
+        self.notification_mode = phase_config.get("notification_mode", False)
 
+        if self.notification_mode:
+            self.max_dialog_turns = 1
+
+        self.dialog_turn = 0
+        self.phase_env: Dict[str, Any] = {}
+
+    @abstractmethod
     def execute(self, env: ChatEnv, agent_adapter) -> ChatEnv:
         """
-        Execute this phase of the development process.
+        Execute this phase.
 
         Args:
             env: Current development environment
@@ -37,37 +52,81 @@ class Phase(ABC):
         Returns:
             Updated environment after phase execution
         """
-        # Render prompt for this phase
-        prompt = self.render_prompt(env)
-
-        # Send prompt to agent and get response
-        # Pass the role information to the adapter
-        if hasattr(self, "assistant_role") and self.assistant_role:
-            response = agent_adapter.send(prompt, role=self.assistant_role)
-        else:
-            response = agent_adapter.send(prompt)
-
-        # Update environment with agent response
-        self.update_env(env, response)
-
-        return env
+        pass
 
     def render_prompt(self, env: ChatEnv) -> str:
+        """Render prompt for backward compatibility. Returns initiator prompt."""
+        return self.render_initiator_prompt(env)
+
+    def render_initiator_prompt(self, env: ChatEnv) -> str:
+        """Render the instruction for initiating the dialog."""
+        initiator_prompt = self.phase_config.get("initiator_prompt", [])
+        prompt_template = "\n".join(initiator_prompt)
+
+        context = self.phase_config.get("context", "")
+        context = self._format_prompt(context, env)
+
+        if "{context}" in prompt_template:
+            return prompt_template.format(
+                phase_name=self.phase_name,
+                context=context,
+                the_other_role=self.assistant_role,
+                assistant_role=self.assistant_role,
+                user_role=self.user_role,
+            )
+        else:
+            prompt_template = self._format_prompt(prompt_template, env)
+            return prompt_template.format(
+                phase_name=self.phase_name,
+                context=context,
+                the_other_role=self.assistant_role,
+                assistant_role=self.assistant_role,
+                user_role=self.user_role,
+            )
+
+    def render_dialog_prompt(self, the_other_role: str, content: str) -> str:
+        """Render the dialog prompt with the other role's message."""
+        prompt_template = self.phase_config.get(
+            "dialog_prompt",
+            "{the_other_role} said: {content}",
+        )
+        return prompt_template.format(the_other_role=the_other_role, content=content)
+
+    def _should_end_dialog(self, response: str) -> bool:
+        """Check if the dialog should end."""
+        result_pattern = r"<result>\s*(.+?)\s*</result>"
+        matches = re.finditer(result_pattern, response, re.DOTALL | re.IGNORECASE)
+        for match in matches:
+            start_pos = match.start()
+            if self._is_inside_quotes(response, start_pos):
+                continue
+            return True
+        return False
+
+    def _is_inside_quotes(self, text: str, pos: int) -> bool:
+        """Check if position is inside any type of quotes (single, double, backtick).
+
+        Only checks characters immediately surrounding the position.
         """
-        Render the prompt for this phase based on environment state.
+        if pos == 0:
+            return False
 
-        Args:
-            env: Current development environment
+        prev_char = text[pos - 1]
+        prev_prev_char = text[pos - 2] if pos >= 2 else ""
 
-        Returns:
-            Formatted prompt string
-        """
-        # Join all prompt lines and format with environment data
-        prompt_template = "\n".join(self.phase_prompt)
+        if prev_char == '"' or prev_prev_char == '"':
+            return True
+        if prev_char == "'" or prev_prev_char == "'":
+            return True
+        if prev_char == "`" or prev_prev_char == "`":
+            return True
 
-        # Replace placeholders with actual values from environment
+        return False
+
+    def _format_prompt(self, prompt_template: str, env: ChatEnv) -> str:
+        """Format prompt template with environment data."""
         try:
-            prompt = prompt_template.format(
+            return prompt_template.format(
                 task=env.task_prompt,
                 modality=env.modality,
                 language=env.language,
@@ -80,55 +139,49 @@ class Phase(ABC):
                 images=env.images,
                 unimplemented_file=env.unimplemented_file,
                 description=env.description,
-                gui=env.gui,  # This would be set based on config
+                gui=env.gui,
                 assistant_role=self.assistant_role,
                 user_role=self.user_role,
             )
         except KeyError as e:
-            print(f"KeyError in render_prompt: {e}")
-            print(
-                f"Available keys in template: {set(re.findall(r'\{(\w+)\}', prompt_template))}"
-            )
-            print(
-                f"Environment state: task_prompt={env.task_prompt}, modality={env.modality}, language={env.language}"
-            )
+            print(f"KeyError in _format_prompt: {e}")
             raise
 
-        return prompt
-
     def update_env(self, env: ChatEnv, response: str) -> None:
-        """
-        Update environment based on agent response.
-
-        Args:
-            env: Environment to update
-            response: Agent response to parse
-        """
-        # Default implementation - can be overridden by subclasses
-        # Look for <INFO> markers in response
+        """Update environment based on agent response."""
         print(f"update_env: response={response}")
-        if "<INFO>" in response:
-            info_start = response.find("<INFO>") + 6  # Length of "<INFO>"
-            info_end = response.find("\n", info_start)
-            if info_end == -1:
-                info_end = len(response)
+        result_pattern = r"<result>\s*(.+?)\s*</result>"
+        matches = list(re.finditer(result_pattern, response, re.DOTALL | re.IGNORECASE))
+        result_content = None
+        for match in matches:
+            content = match.group(1).strip()
+            start_pos = match.start()
+            end_pos = match.end()
+            before_result = response[:start_pos]
+            after_result = response[end_pos:]
+            if not self._is_inside_quotes(response, start_pos):
+                result_content = content
+                break
+        if result_content:
+            print(f"update_env: result_content={result_content}")
 
-            info_content = response[info_start:info_end].strip()
-            print(f"update_env: info_content={info_content}")
-
-            # Update environment based on phase type
-            if (
-                self.phase_name == "DemandAnalysis"
-                or self.phase_name == "DemandAnalysisPhase"
-            ):
-                print(f"update_env: Setting env.modality to {info_content}")
-                env.modality = info_content
-                print(f"update_env: env.modality is now {env.modality}")
-            elif (
-                self.phase_name == "LanguageChoose"
-                or self.phase_name == "LanguageChoosePhase"
-            ):
-                print(f"update_env: Setting env.language to {info_content}")
-                env.language = info_content
-                print(f"update_env: env.language is now {env.language}")
-            # Other phase-specific updates would go here
+            if self.phase_name == "DemandAnalysis":
+                env.modality = result_content
+            elif self.phase_name == "LanguageChoose":
+                env.language = result_content
+            elif self.phase_name == "Coding":
+                env.description = result_content
+            elif self.phase_name == "CodeComplete":
+                env.unimplemented_file = result_content
+            elif self.phase_name == "CodeReviewComment":
+                env.comments = result_content
+            elif self.phase_name == "TestErrorSummary":
+                env.error_summary = result_content
+            elif self.phase_name == "EnvironmentDoc":
+                env.docs = result_content
+            elif self.phase_name == "Manual":
+                env.manual = result_content
+            elif self.phase_name == "ArtDesign":
+                env.images = result_content
+            elif self.phase_name == "ArtIntegration":
+                env.art_integration_result = result_content

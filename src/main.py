@@ -9,7 +9,6 @@ import argparse
 import logging
 import sys
 import os
-import json
 from dotenv import load_dotenv
 
 # Add src to path so we can import clawdev
@@ -17,7 +16,12 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "."))
 
 from clawdev.chain.chain import ChatChain
 from clawdev.adapter.agent_adapter import AgentAdapter
-from openclaw_acp import OpenClawAgent
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -49,6 +53,8 @@ def main():
     print(f"Task: {args.task}")
     print(f"Project name: {args.project_name}")
     print(f"Configuration: {args.config}")
+
+    load_dotenv()
 
     # Run with real OpenClaw agents
     print("Connecting to OpenClaw agents...")
