@@ -36,6 +36,10 @@ class MockAgentAdapter:
 
     agent_configs = DEFAULT_AGENT_CONFIGS
 
+    def set_session_context(self, role: str, context: str) -> None:
+        """Mock method - does nothing."""
+        pass
+
     def send(self, message, role="default"):
         """Mock send method that returns a simple response."""
         print(f"MockAgentAdapter received message: {message[:100]}...")
