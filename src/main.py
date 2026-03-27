@@ -12,6 +12,18 @@ import sys
 from clawdev.chain.chain import ChatChain
 from clawdev.adapter.agent_adapter import AgentAdapter
 
+DEFAULT_AGENT_CONFIGS = {
+    "Chief Executive Officer": "chief_executive_officer",
+    "Chief Product Officer": "chief_product_officer",
+    "Chief Technology Officer": "chief_technology_officer",
+    "Programmer": "programmer",
+    "Code Reviewer": "code_reviewer",
+    "Software Test Engineer": "software_test_engineer",
+    "Chief Creative Officer": "chief_creative_officer",
+    "Counselor": "counselor",
+    "Chief Human Resource Officer": "chief_human_resource_officer",
+}
+
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(name)s - %(levelname)s - %(message)s",
@@ -22,17 +34,7 @@ logger = logging.getLogger(__name__)
 class MockAgentAdapter:
     """Mock adapter for testing without real agent."""
 
-    agent_configs = {
-        "Chief Executive Officer": "chief_executive_officer",
-        "Chief Product Officer": "chief_product_officer",
-        "Chief Technology Officer": "chief_technology_officer",
-        "Programmer": "programmer",
-        "Code Reviewer": "code_reviewer",
-        "Software Test Engineer": "software_test_engineer",
-        "Chief Creative Officer": "chief_creative_officer",
-        "Counselor": "counselor",
-        "Chief Human Resource Officer": "chief_human_resource_officer",
-    }
+    agent_configs = DEFAULT_AGENT_CONFIGS
 
     def send(self, message, role="default"):
         """Mock send method that returns a simple response."""
@@ -109,19 +111,7 @@ def main():
         # Run with real OpenClaw agents
         print("Connecting to OpenClaw agents...")
         try:
-            # Map roles to agent names
-            agent_configs = {
-                "Chief Executive Officer": "chief_executive_officer",
-                "Chief Product Officer": "chief_product_officer",
-                "Chief Technology Officer": "chief_technology_officer",
-                "Programmer": "programmer",
-                "Code Reviewer": "code_reviewer",
-                "Software Test Engineer": "software_test_engineer",
-                "Chief Creative Officer": "chief_creative_officer",
-                "Counselor": "counselor",
-                "Chief Human Resource Officer": "chief_human_resource_officer",
-            }
-            adapter = AgentAdapter(agent_configs)
+            adapter = AgentAdapter(DEFAULT_AGENT_CONFIGS)
         except Exception as e:
             print(f"Error connecting to OpenClaw agents: {e}")
             print("Falling back to mock adapter for testing")
