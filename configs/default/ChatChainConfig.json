@@ -30,7 +30,7 @@
         {
             "phase": "CodeReview",
             "phaseType": "ComposedPhase",
-            "cycleNum": 3,
+            "cycleNum": 1,
             "composition": [
                 {
                     "phase": "CodeReviewInit",
