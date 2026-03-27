@@ -31,8 +31,8 @@ tea api                 # Make API requests
 For API endpoints not covered by tea CLI, use `tea api`:
 
 ```bash
-# Example: Add collaborator (with JSON payload)
-echo '{"permission":"write"}' | tea api --method PUT --header "Content-Type: application/json" "/repos/{owner}/{repo}/collaborators/{username}"
+# Example: Add collaborator
+tea api -X PUT -f permission=write /repos/{owner}/{repo}/collaborators/{username}
 
 # Example: GET request
 tea api "/repos/{owner}/{repo}"
@@ -42,13 +42,13 @@ tea api "/repos/{owner}/{repo}"
 # http://host.docker.internal:3000/api/swagger
 ```
 
-### Important: tea API JSON Payload Syntax
+### tea api -f Flag
 
-When sending JSON data via `tea api`:
-- Do NOT use `--body` or `--data` flags (not recognized)
-- Pipe JSON data to stdin using `echo '...' | tea api ...`
-- Use `--header "Content-Type: application/json"` for proper content type
-- Use double quotes for JSON keys and string values
+When sending data via `tea api`, use `-f` flag for string fields:
+
+```bash
+tea api -X PUT -f permission=write /repos/{owner}/{repo}/collaborators/{username}
+```
 
 ### Repository Verification After Creation
 

@@ -32,7 +32,7 @@ For API endpoints not covered by tea CLI:
 
 ```bash
 # Use tea api or fetch from:
-# http://localhost:3000/api/swagger
+# http://host.docker.internal:3000/api/swagger
 ```
 
 ## Git
