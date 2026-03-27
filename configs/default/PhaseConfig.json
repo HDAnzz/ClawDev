@@ -144,7 +144,7 @@
       "[IMPORTANT]",
       "- Use tea CLI to add Code Reviewer as a collaborator",
       "- Your workspace is already configured with git and tea CLI",
-      "Example: echo '{{\"permission\":\"write\"}}' | tea api --method PUT --header \"Content-Type: application/json\" \"/repos/OWNER/REPO/collaborators/code_reviewer\"",
+      "Example: tea api -X PUT -f permission=write /repos/OWNER/REPO/collaborators/USERNAME",
       "- Replace OWNER/REPO with actual repository owner and name from 'tea repo list'",
 
       "[GITEA WORKFLOW]",

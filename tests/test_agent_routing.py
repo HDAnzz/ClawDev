@@ -94,9 +94,9 @@ class TestAgentRouting:
         [
             "DemandAnalysis",
             "LanguageChoose",
-            "Coding",
-            "CodeComplete",
-            "CodeReviewComment",
+            "CodingInit",
+            "CodingImprove",
+            "CodeReviewInit",
             "CodeReviewModification",
             "TestErrorSummary",
             "TestModification",
