@@ -31,17 +31,14 @@
             "phase": "CodeReview",
             "phaseType": "ComposedPhase",
             "cycleNum": 3,
-            "Composition": [{
-                    "phase": "CodeReviewComment",
-                    "phaseType": "SimplePhase",
-                    "max_turn_step": 1,
-                    "need_reflect": "False"
+            "composition": [
+                {
+                    "phase": "CodeReviewInit",
+                    "phaseType": "SimplePhase"
                 },
                 {
                     "phase": "CodeReviewModification",
-                    "phaseType": "SimplePhase",
-                    "max_turn_step": 1,
-                    "need_reflect": "False"
+                    "phaseType": "SimplePhase"
                 }
             ]
         },

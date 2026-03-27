@@ -219,64 +219,79 @@
     "context": "User Request: {task}\nLanguage: {language}\nUnimplemented files: {unimplemented_file}",
     "dialog_prompt": "{the_other_role} said: {content}"
   },
-  "CodeReviewComment": {
+  "CodeReviewInit": {
     "assistant_role_name": "Code Reviewer",
-    "user_role_name": "Programmer",
-    "max_dialog_turns": 6,
+    "user_role_name": "Chief Technology Officer",
+    "max_dialog_turns": 4,
     "initiator_prompt": [
-      "[MESSAGE] Send a message to {assistant_role} to begin discussing the current task.",
-      "",
+      "[TASK] Add Code Reviewer as a collaborator to the repository with write permission and begin code review.",
+
+      "[IMPORTANT]",
+      "- Use tea CLI to add Code Reviewer as a collaborator",
+      "- Your workspace is already configured with git and tea CLI",
+      "Example: echo '{\"permission\":\"write\"}' | tea api --method PUT --header \"Content-Type: application/json\" \"/repos/{owner}/{repo}/collaborators/code_reviewer\"",
+
+      "[GITEA WORKFLOW]",
+      "1. Use 'tea repo list' to find the repository",
+      "2. Add Code Reviewer as a collaborator with write permission",
+      "3. Send a message to Code Reviewer with repository URL and review task",
+
+      "[MESSAGE] After adding collaborator, send a message to {assistant_role} to begin the review.",
+
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
-      "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
-      "",
-      "[RESULT TAGS] Both parties must NOT use <result> tags until ALL issues are identified.",
-      "When all issues are identified, {assistant_role} should output: <result>Done</result>",
-      "",
-      "[EFFICIENCY] Be thorough but concise. Identify issues, then conclude immediately.",
-      "",
+      "Your message will be sent to {assistant_role}. Wait for their response. DO NOT write both sides of the conversation.",
+
       "[INSTRUCT {assistant_role}] The message must meet the following requirements:",
-      "- Explain the task: introduce the [PHASE TASK] and basic context of the project",
-      "- Includes how the phase works, [RESULT TAGS] usage rules and [EFFICIENCY] requirements",
-      "- This instruction should not have any result XML tags with content, as this will cause the phase to end prematurely.",
-      "Example WRONG: 'Output <result>Done</result> to end this phase when all issues are identified.'",
-      "Example CORRECT: 'When all issues are identified, put the conclusion into <result></result> to end this stage; this tag must not contain any content beforehand.'",
-      "",
-      "[PHASE TASK] Review code thoroughly and identify all issues.",
-      "",
-      "[CHECKLIST]\n1. All imports present and correct\n2. All methods fully implemented\n3. Necessary comments present\n4. No potential bugs\n5. Meets requirements\n6. Logic is sound",
-      "",
-      "[CONTEXT] {context}"
+      "- Include the repository URL and project overview",
+      "- Request a thorough code review and list all issues found",
+      "- Tell {assistant_role} they must NOT output <result> tags. Whether this phase ends is determined solely by you (CTO)",
+      "- Do NOT include <result> tags with content in this message, as this will skip the phase",
+      "  Example WRONG: \"You MUST NOT output <result>Done</result>\"",
+      "  Example CORRECT: \"DO NOT output any <result> tags\"",
+
+      "[RESULT TAGS] Termination conditions:",
+      "- Do NOT output <result> tags until code review is complete and all issues are listed",
+      "- When all issues are identified, output <result>Done</result>",
+
+      "[CHECKLIST]",
+      "1. All imports present and correct",
+      "2. All methods fully implemented",
+      "3. Necessary comments present",
+      "4. No potential bugs",
+      "5. Meets requirements",
+      "6. Logic is sound",
+
+      "After {assistant_role} provides the review results, output <result>Done</result> to conclude."
     ],
-    "context": "Code to review: {task}\nLanguage: {language}",
+    "context": "User Request: {task}\nLanguage: {language}",
     "dialog_prompt": "{the_other_role} said: {content}"
   },
   "CodeReviewModification": {
-    "assistant_role_name": "Programmer",
+    "assistant_role_name": "Chief Technology Officer",
     "user_role_name": "Code Reviewer",
     "max_dialog_turns": 6,
     "initiator_prompt": [
       "[MESSAGE] Send a message to {assistant_role} to begin discussing the current task.",
-      "",
+
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
       "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
-      "",
-      "[RESULT TAGS] Both parties must NOT use <result> tags until all modifications are complete and tests pass.",
-      "When modifications are complete and verified, {assistant_role} should output: <result>Done</result>",
-      "",
-      "[EFFICIENCY] Be concise. Fix issues, test, then conclude immediately.",
-      "",
+
       "[INSTRUCT {assistant_role}] The message must meet the following requirements:",
-      "- Explain the task: introduce the [PHASE TASK] and basic context of the project",
-      "- Includes how the phase works, [RESULT TAGS] usage rules and [EFFICIENCY] requirements",
-      "- This instruction should not have any result XML tags with content, as this will cause the phase to end prematurely.",
-      "Example WRONG: 'Output <result>Done</result> to end this phase when all fixes are verified.'",
-      "Example CORRECT: 'When all fixes are verified, put the conclusion into <result></result> to end this stage; this tag must not contain any content beforehand.'",
-      "",
-      "[PHASE TASK] Fix all code issues identified in the review.",
-      "",
+      "- Clearly list all code issues that need to be fixed",
+      "- Ask Programmer to fix these issues and create a new PR",
+      "- Do NOT output <result> tags until the PR is merged or approved",
+      "  Example WRONG: \"You MUST NOT output <result>Done</result>\"",
+      "  Example CORRECT: \"DO NOT output any <result> tags\"",
+
+      "[RESULT TAGS] Termination conditions:",
+      "- Do NOT output <result> tags until all issues are fixed and PR is merged",
+      "- When the PR is merged, output <result>Done</result>",
+
+      "[PHASE TASK] After Code Reviewer lists the issues, instruct Programmer to fix them and merge the PR.",
+
       "[CONTEXT] {context}"
     ],
-    "context": "Language: {language}\nReview comments: {comments}",
+    "context": "User Request: {task}\nLanguage: {language}\nReview comments: {comments}",
     "dialog_prompt": "{the_other_role} said: {content}"
   },
   "TestErrorSummary": {
