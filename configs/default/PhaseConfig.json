@@ -2,7 +2,7 @@
   "DemandAnalysis": {
     "assistant_role_name": "Chief Product Officer",
     "user_role_name": "Chief Executive Officer",
-    "max_dialog_turns": 6,
+    "max_dialog_turns": 12,
     "initiator_prompt": [
       "[MESSAGE] Send a message to {assistant_role} to begin discussing the current task.",
       "",
@@ -31,7 +31,7 @@
   "LanguageChoose": {
     "assistant_role_name": "Chief Technology Officer",
     "user_role_name": "Chief Executive Officer",
-    "max_dialog_turns": 4,
+    "max_dialog_turns": 8,
     "initiator_prompt": [
       "[MESSAGE] Send a message to {assistant_role} to begin discussing the current task.",
       "",
@@ -60,7 +60,7 @@
   "CodingInit": {
     "assistant_role_name": "Programmer",
     "user_role_name": "Chief Technology Officer",
-    "max_dialog_turns": 2,
+    "max_dialog_turns": 4,
     "initiator_prompt": [
       "[TASK] Create a new repository on Gitea for this project and add Programmer as a collaborator.",
       "",
@@ -99,7 +99,7 @@
   "CodingImprove": {
     "assistant_role_name": "Programmer",
     "user_role_name": "Chief Technology Officer",
-    "max_dialog_turns": 8,
+    "max_dialog_turns": 16,
     "initiator_prompt": [
       "[MESSAGE] Send a message to {assistant_role} to begin discussing the current task.",
       "",
@@ -137,7 +137,7 @@
   "CodeReviewInit": {
     "assistant_role_name": "Code Reviewer",
     "user_role_name": "Chief Technology Officer",
-    "max_dialog_turns": 2,
+    "max_dialog_turns": 4,
     "initiator_prompt": [
       "[TASK] Add Code Reviewer as a collaborator to the repository with write permission.",
 
@@ -176,7 +176,7 @@
   "CodeReviewModification": {
     "assistant_role_name": "Code Reviewer",
     "user_role_name": "Chief Technology Officer",
-    "max_dialog_turns": 4,
+    "max_dialog_turns": 8,
     "initiator_prompt": [
       "[TASK] Conduct code review and ensure code quality.",
 
@@ -216,7 +216,7 @@
   "TestErrorSummary": {
     "assistant_role_name": "Programmer",
     "user_role_name": "Software Test Engineer",
-    "max_dialog_turns": 4,
+    "max_dialog_turns": 8,
     "initiator_prompt": [
       "[MESSAGE] Send a message to {assistant_role} to begin discussing the current task.",
       "",
@@ -247,7 +247,7 @@
   "TestModification": {
     "assistant_role_name": "Programmer",
     "user_role_name": "Software Test Engineer",
-    "max_dialog_turns": 6,
+    "max_dialog_turns": 12,
     "initiator_prompt": [
       "[MESSAGE] Send a message to {assistant_role} to begin discussing the current task.",
       "",
@@ -276,7 +276,7 @@
   "EnvironmentDoc": {
     "assistant_role_name": "Programmer",
     "user_role_name": "Chief Technology Officer",
-    "max_dialog_turns": 4,
+    "max_dialog_turns": 8,
     "initiator_prompt": [
       "[MESSAGE] Send a message to {assistant_role} to begin discussing the current task.",
       "",
