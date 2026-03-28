@@ -174,8 +174,8 @@
     "dialog_prompt": "{the_other_role} said: {content}"
   },
   "CodeReviewModification": {
-    "assistant_role_name": "Code Reviewer",
-    "user_role_name": "Chief Technology Officer",
+    "assistant_role_name": "Programmer",
+    "user_role_name": "Code Reviewer",
     "max_dialog_turns": 8,
     "initiator_prompt": [
       "[TASK] Conduct code review and ensure code quality.",
