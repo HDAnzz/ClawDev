@@ -44,7 +44,7 @@ if [[ ${#missing_users[@]} -gt 0 ]]; then
     docker exec --user 1000:1000 $GITEA_CONTAINER gitea admin user create \
       --username "$agent" \
       --password "test123456" \
-      --email "${agent}@gitea.local" 2>/dev/null
+      --email "${agent}@clawdev.com" 2>/dev/null
     echo "    Created: $agent"
   done
 fi
