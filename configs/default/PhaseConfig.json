@@ -113,11 +113,13 @@
       "[INSTRUCT {assistant_role}] The message must:",
       "- Include the repository URL",
       "- Ask {assistant_role} to confirm whether they can access the repository",
-      "- Tell {assistant_role} to review the framework code and start implementing",
+      "- Tell {assistant_role} to review the framework code and start initial implementation",
+      "- Tell {assistant_role} to create a PR with the initial implementation",
+      "- Remind {assistant_role}: Do NOT write tests, documentation, or dependency files (e.g., requirements.txt, package.json) - only code implementation",
       "- Tell {assistant_role} they must NOT output <result> tags until they confirm access",
       "- Do NOT include <result> tags with content in this message, as this will skip the phase",
 
-      "[TERMINATION] After {assistant_role} confirms they can access the repository, output <result>Done</result>."
+      "[TERMINATION] After {assistant_role} confirms they can access the repository and has created the initial PR, output <result>Done</result>."
     ],
     "context": "User Request: {task}\nDescription: {description}\nTarget: {modality}\nLanguage: {language}",
     "dialog_prompt": "{the_other_role} said: {content}"
@@ -141,6 +143,7 @@
       "[INSTRUCT {assistant_role}] The message must meet the following requirements:",
       "- Identify code deficiencies or missing features based on user requirements, and clearly specify what needs to be improved",
       "- Explain the phase mechanism: Programmer will improve code and create PR, CTO reviews and approves. Repeat until all issues are resolved",
+      "- Remind Programmer: Do NOT write tests, documentation, or dependency files (e.g., requirements.txt, package.json) - only code implementation",
       "- Tell {assistant_role} they must NOT output <result> tags. Whether this phase ends is determined solely by you (CTO)",
       "- Do NOT include <result> tags with content in this message. This will cause the phase to be skipped",
       "  Example WRONG: \"You MUST NOT output <result>Done</result>\"",
