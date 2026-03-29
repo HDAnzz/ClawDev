@@ -172,6 +172,77 @@
     "context": "User Request: {task}\nDescription: {description}\nTarget: {modality}\nLanguage: {language}",
     "dialog_prompt": "{the_other_role} said: {content}"
   },
+  "CodingTest": {
+    "assistant_role_name": "Programmer",
+    "user_role_name": "Chief Technology Officer",
+    "max_dialog_turns": 8,
+    "initiator_prompt": [
+      "[TASK] Have Programmer write test code for the project.",
+
+      "[USER REQUIREMENTS]",
+      "- Task: {task}",
+      "- Description: {description}",
+
+      "[MESSAGE] Send a message to {assistant_role} to begin writing test code.",
+
+      "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
+      "Your message will be sent to {assistant_role}. Wait for their response. DO NOT write both sides of the conversation.",
+
+      "[INSTRUCT {assistant_role}] The message must:",
+      "- Include the user requirements (task and description)",
+      "- Ask {assistant_role} to write test code covering main functionality",
+      "- Ask {assistant_role} to run tests to verify they pass",
+      "- Remind {assistant_role} to use proper test framework (pytest for Python, etc.)",
+      "- Tell {assistant_role} they must NOT output <result> tags until tests are written and passing",
+      "- Do NOT include <result> tags with content in this message, as this will skip the phase",
+
+      "[VERIFICATION] After receiving {assistant_role}'s response, YOU MUST verify:",
+      "- Use 'tea runs list' or check repository to verify tests were written",
+      "- Run tests to verify they pass",
+      "- If tests are not written or failing, ask {assistant_role} to fix",
+      "- Only output <result>Done</result> after confirming tests are written and passing",
+
+      "[TERMINATION] After confirming tests are written and passing, output <result>Done</result>."
+    ],
+    "context": "User Request: {task}\nDescription: {description}\nLanguage: {language}",
+    "dialog_prompt": "{the_other_role} said: {content}"
+  },
+  "CodingDoc": {
+    "assistant_role_name": "Programmer",
+    "user_role_name": "Chief Technology Officer",
+    "max_dialog_turns": 8,
+    "initiator_prompt": [
+      "[TASK] Have Programmer write documentation for the project.",
+
+      "[USER REQUIREMENTS]",
+      "- Task: {task}",
+      "- Description: {description}",
+
+      "[MESSAGE] Send a message to {assistant_role} to begin writing documentation.",
+
+      "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
+      "Your message will be sent to {assistant_role}. Wait for their response. DO NOT write both sides of the conversation.",
+
+      "[INSTRUCT {assistant_role}] The message must:",
+      "- Include the user requirements (task and description)",
+      "- Ask {assistant_role} to write README.md with:",
+      "  - Project description",
+      "  - Installation instructions",
+      "  - Usage instructions",
+      "  - Any other relevant documentation",
+      "- Tell {assistant_role} they must NOT output <result> tags until documentation is written",
+      "- Do NOT include <result> tags with content in this message, as this will skip the phase",
+
+      "[VERIFICATION] After receiving {assistant_role}'s response, YOU MUST verify:",
+      "- Check repository to verify README.md was created",
+      "- If documentation is missing or incomplete, ask {assistant_role} to add more",
+      "- Only output <result>Done</result> after confirming documentation is complete",
+
+      "[TERMINATION] After confirming documentation is written, output <result>Done</result>."
+    ],
+    "context": "User Request: {task}\nDescription: {description}\nLanguage: {language}",
+    "dialog_prompt": "{the_other_role} said: {content}"
+  },
   "CodeReviewInit": {
     "assistant_role_name": "Code Reviewer",
     "user_role_name": "Chief Technology Officer",

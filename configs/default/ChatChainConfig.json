@@ -28,6 +28,14 @@
                     "phase": "CodingImprove",
                     "phaseType": "SimplePhase",
                     "max_turn_step": "-1"
+                },
+                {
+                    "phase": "CodingTest",
+                    "phaseType": "SimplePhase"
+                },
+                {
+                    "phase": "CodingDoc",
+                    "phaseType": "SimplePhase"
                 }
             ]
         },
