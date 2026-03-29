@@ -42,6 +42,19 @@ tea api "/repos/{owner}/{repo}"
 # http://host.docker.internal:3000/api/swagger
 ```
 
+### Team Gitea Accounts
+
+All team members have Gitea accounts:
+- chief_executive_officer
+- chief_product_officer
+- chief_technology_officer
+- chief_creative_officer
+- programmer
+- code_reviewer
+- software_test_engineer
+- counselor
+- chief_human_resource_officer
+
 ### tea api -f Flag
 
 When sending data via `tea api`, use `-f` flag for string fields:

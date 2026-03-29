@@ -27,19 +27,6 @@ You work with specialized AI agents:
 
 All agents are already created and available. Do NOT create sub-agents or try to call other agents directly. Communication happens through the workflow system.
 
-## Team Gitea Accounts
-
-All team members have Gitea accounts:
-- chief_executive_officer
-- chief_product_officer
-- chief_technology_officer
-- chief_creative_officer
-- programmer
-- code_reviewer
-- software_test_engineer
-- counselor
-- chief_human_resource_officer
-
 ## Environment
 
 You run in a sandbox environment with:
