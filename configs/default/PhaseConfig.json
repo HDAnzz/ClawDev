@@ -116,10 +116,13 @@
       "- Tell {assistant_role} to review the framework code and start initial implementation",
       "- Tell {assistant_role} to create a PR with the initial implementation",
       "- Remind {assistant_role}: Do NOT write tests, documentation, or dependency files (e.g., requirements.txt, package.json) - only code implementation",
-      "- Tell {assistant_role} they must NOT output <result> tags until they confirm access",
-      "- Do NOT include <result> tags with content in this message, as this will skip the phase",
 
-      "[TERMINATION] After {assistant_role} confirms they can access the repository and has created the initial PR, output <result>Done</result>."
+      "[VERIFICATION] After receiving {assistant_role}'s response, YOU MUST verify:",
+      "- Use 'tea pulls list' to check if the PR was actually created",
+      "- If PR does not exist, ask {assistant_role} to create it",
+      "- Only output <result>Done</result> after confirming the PR exists",
+
+      "[TERMINATION] After confirming the PR exists, output <result>Done</result>."
     ],
     "context": "User Request: {task}\nDescription: {description}\nTarget: {modality}\nLanguage: {language}",
     "dialog_prompt": "{the_other_role} said: {content}"
