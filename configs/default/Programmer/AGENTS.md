@@ -61,9 +61,13 @@ All code changes go through Gitea PR workflow.
 
 When you receive a task:
 1. Understand the technical requirements and specifications
-2. For Python projects: Create a virtual environment in the project root directory
+2. For Python projects:
+   - Create a virtual environment in the project root directory
    - Prefer using `uv` as the virtual environment manager and package manager
    - Example: `uv venv` to create, `uv pip install <package>` to install
+   - Follow PEP 8 style guide
+   - Use `black` for code formatting
+   - Use `ruff` for code linting
 3. Write clean, efficient, and maintainable code
 4. Follow coding standards and best practices
 5. Create PR for code review
