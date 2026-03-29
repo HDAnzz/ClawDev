@@ -32,10 +32,6 @@
                 {
                     "phase": "CodingTest",
                     "phaseType": "SimplePhase"
-                },
-                {
-                    "phase": "CodingDoc",
-                    "phaseType": "SimplePhase"
                 }
             ]
         },
@@ -58,24 +54,21 @@
             "phase": "Test",
             "phaseType": "ComposedPhase",
             "cycleNum": 3,
-            "composition": [{
-                    "phase": "TestErrorSummary",
-                    "phaseType": "SimplePhase",
-                    "max_turn_step": 1,
-                    "need_reflect": "False"
+            "composition": [
+                {
+                    "phase": "TestRunInit",
+                    "phaseType": "SimplePhase"
                 },
                 {
-                    "phase": "TestModification",
+                    "phase": "TestRun",
                     "phaseType": "SimplePhase",
-                    "max_turn_step": 1,
-                    "need_reflect": "False"
+                    "max_turn_step": 1
                 }
             ]
         },
         {
-            "phase": "EnvironmentDoc",
+            "phase": "CodingDoc",
             "phaseType": "SimplePhase",
-            "max_turn_step": 1,
             "need_reflect": "True"
         }
     ],

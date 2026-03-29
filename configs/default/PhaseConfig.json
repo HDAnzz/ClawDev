@@ -4,6 +4,8 @@
     "user_role_name": "Chief Executive Officer",
     "max_dialog_turns": 12,
     "initiator_prompt": [
+      "[PHASE TASK] Analyze user requirements and recommend the best product modality.",
+      "",
       "[MESSAGE] Send a message to {assistant_role} to begin discussing the current task.",
       "",
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
@@ -17,11 +19,9 @@
       "[INSTRUCT {assistant_role}] The message must meet the following requirements:",
       "- Explain the task: introduce the [PHASE TASK] and basic context of the project",
       "- Includes how the phase works, [RESULT TAGS] usage rules and [EFFICIENCY] requirements",
-      "- This instruction should not have any result XML tags with content, as this will cause the phase to end prematurely.",
+      "- This instruction should not have any result XML tags with content, as this will cause the phase to end prematurely",
       "Example WRONG: 'Output <result>modality</result> to end this phase when we reach a consensus.'",
       "Example CORRECT: 'When we reach a consensus, put the conclusion into <result></result> to end this stage; this tag must not contain any content beforehand.'",
-      "",
-      "[PHASE TASK] Analyze user requirements and recommend the best product modality.",
       "",
       "[CONTEXT] {context}"
     ],
@@ -33,6 +33,8 @@
     "user_role_name": "Chief Executive Officer",
     "max_dialog_turns": 8,
     "initiator_prompt": [
+      "[PHASE TASK] Recommend the most suitable programming language for this project.",
+      "",
       "[MESSAGE] Send a message to {assistant_role} to begin discussing the current task.",
       "",
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
@@ -46,11 +48,9 @@
       "[INSTRUCT {assistant_role}] The message must meet the following requirements:",
       "- Explain the task: introduce the [PHASE TASK] and basic context of the project",
       "- Includes how the phase works, [RESULT TAGS] usage rules and [EFFICIENCY] requirements",
-      "- This instruction should not have any result XML tags with content, as this will cause the phase to end prematurely.",
+      "- This instruction should not have any result XML tags with content, as this will cause the phase to end prematurely",
       "Example WRONG: 'Output <result>language</result> to end this phase when we reach a consensus.'",
       "Example CORRECT: 'When we reach a consensus, put the conclusion into <result></result> to end this stage; this tag must not contain any content beforehand.'",
-      "",
-      "[PHASE TASK] Recommend the most suitable programming language for this project.",
       "",
       "[CONTEXT] {context}"
     ],
@@ -61,17 +61,14 @@
     "notification_mode": true,
     "user_role_name": "Chief Technology Officer",
     "initiator_prompt": [
-      "[TASK] Design project architecture and write framework code (without implementation).",
-
-      "[USER REQUIREMENTS]",
-      "- Task: {task}",
-      "- Modality: {modality}",
-      "- Language: {language}",
-
+      "[PHASE TASK] Design project architecture and write framework code (without implementation).",
+      "",
+      "[CONTEXT] {context}",
+      "",
       "[IMPORTANT]",
       "- Your workspace is already configured with git and tea CLI",
       "- You can refer to Gitea skill for tea usage details",
-
+      "",
       "[WORKFLOW]",
       "1. Design project architecture:",
       "   - Directory structure",
@@ -95,40 +92,37 @@
     "user_role_name": "Chief Technology Officer",
     "max_dialog_turns": 4,
     "initiator_prompt": [
-      "[TASK] Add Programmer as collaborator and notify them.",
-
+      "[PHASE TASK] Add Programmer as collaborator and instruct them to start initial implementation based on the framework code.",
+      "",
       "[IMPORTANT]",
       "- The repository was already created in CodingDesign phase",
       "- Your workspace is already configured with git and tea CLI",
-
-      "[USER REQUIREMENTS]",
-      "- Task: {task}",
-      "- Description: {description}",
-
+      "",
       "[GITEA WORKFLOW]",
-      "1. Use 'tea repo add-collaborator' to add Programmer as a collaborator to the repository",
-
+      "1. Use 'tea api' to add Programmer as a collaborator to the repository",
+      "2. Vertify Programmer has access by checking the repository collaborators list",
+      "",
       "[MESSAGE] After adding collaborator, send a message to {assistant_role}.",
-
+      "",
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
       "Your message will be sent to {assistant_role}. Wait for their response. DO NOT write both sides of the conversation.",
-
+      "",
       "[INSTRUCT {assistant_role}] The message must:",
       "- Include the repository URL",
       "- Include the user requirements (task and description)",
       "- Ask {assistant_role} to confirm whether they can access the repository",
       "- Tell {assistant_role} to review the framework code and start initial implementation according to requirements",
-      "- Tell {assistant_role} to create a PR with the initial implementation",
-      "- Remind {assistant_role}: Do NOT write tests or documentation - only code implementation",
-
+      "- Tell {assistant_role} to create a PR with the initial implementation and always do so in future modifications",
+      "- Remind {assistant_role}: Do NOT write tests or documentation - only code implementation in this phase",
+      "",
       "[VERIFICATION] After receiving {assistant_role}'s response, YOU MUST verify:",
       "- Use 'tea pulls list' to check if the PR was actually created",
       "- If PR does not exist, ask {assistant_role} to create it",
       "- If PR exists but has empty files or no core implementation, require {assistant_role} to add more commits",
       "- Quality standard: at least has some core functionality, don't be too strict",
-      "- Only output <result>Done</result> after confirming the PR has basic implementation",
-
-      "[TERMINATION] After confirming the PR has basic implementation, output <result>Done</result>."
+      "- Only output <result>Done</result> after confirming the PR has basic implementation and you have approved it",
+      "",
+      "[TERMINATION] After confirming the PR has basic implementation, approve it and output <result>Done</result>."
     ],
     "context": "",
     "dialog_prompt": "{the_other_role} said: {content}"
@@ -138,36 +132,41 @@
     "user_role_name": "Chief Technology Officer",
     "max_dialog_turns": 16,
     "initiator_prompt": [
-      "[MESSAGE] Send a message to {assistant_role} to begin discussing the current task.",
+      "[PHASE TASK] Based on the user's requirements and current code, instruct Programmer to improve the code and create PRs until it fully meets the requirements.",
+      "",
+      "[WORKFLOW]",
+      "1. Check the current code for deficiencies or missing features",
+      "2. Send a message to {assistant_role} beginning the discussion as well as instruct them to make necessary improvements",
+      "3. Programmer responds and creates a PR with the improvements",
+      "4. Check if the PR exists and has the required changes",
+      "5. If the code still does not meet requirements, repeat the cycle until all issues are resolved and code meets requirements",
       "",
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
       "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
       "",
       "[RESULT TAGS]",
-      "- Do NOT output <result> tags until PR is created and approved",
-      "- When the current code already meets user requirements, do not make unnecessary modifications. Output <result>Done</result> directly.",
+      "- Do NOT output <result> tags until user requirements are fully met and code is approved",
+      "- When the current code already meets user requirements, do not make unnecessary modifications. Output <result>Done</result> directly",
       "",
-      "[EFFICIENCY] Be concise. Complete the task efficiently.",
+      "[EFFICIENCY] Be concise. Complete the task efficiently. You are encouraged to break down the unimplemented features into smaller pieces and ask {assistant_role} to implement them in multiple cycles, but avoid unnecessary back-and-forth.",
       "",
       "[INSTRUCT {assistant_role}] The message must meet the following requirements:",
       "- Identify code deficiencies or missing features based on user requirements, and clearly specify what needs to be improved",
-      "- Explain the phase mechanism: Programmer will improve code and create PR, CTO reviews and approves. Repeat until all issues are resolved",
-      "- Remind Programmer: Do NOT write tests or documentation - only code implementation",
-      "- Tell {assistant_role} they must NOT output <result> tags. Whether this phase ends is determined solely by you (CTO)",
+      "- Explain the workflow of this phase",
+      "- Remind Programmer: Do NOT write tests or documentation - only code implementation in this phase",
+      "- Tell {assistant_role} they must NOT output <result> tags. Whether this phase ends is determined solely by you",
       "- Do NOT include <result> tags with content in this message. This will cause the phase to be skipped",
       "  Example WRONG: \"You MUST NOT output <result>Done</result>\"",
       "  Example CORRECT: \"DO NOT output any <result> tags\"",
       "",
-      "[PHASE TASK] Based on the user's requirements and current code, instruct Programmer to improve the code and create PRs until you approve.",
+      "[VERIFICATION] After receiving {assistant_role}'s response, YOU MUST verify:",
+      "1. Use 'tea pulls list' to check if the PR was actually created",
+      "2. If PR does not exist, ask {assistant_role} to create it",
+      "3. If PR exists, review the code changes using 'tea pulls view' or git commands",
+      "4. If code still does not meet requirements or sharded goal, don't approve or close the PR. Instead, send another message to {assistant_role} asking for further improvements",
+      "5. If code meets requirements, approve the PR to merge it",
       "",
-      "[GITEA WORKFLOW]",
-      "- Programmer creates a new branch for this task as needed",
-      "- Programmer writes or modifies code",
-      "- Programmer uses 'git add', 'git commit', 'git push' to save changes",
-      "- Programmer uses 'tea pr create' to create Pull Request",
-      "- You review and decide whether to accept the PR",
-      "",
-      "[CONTEXT] {context}"
+      "[TERMINATION] After confirming the final code meets user's requirements, output <result>Done</result>."
     ],
     "context": "",
     "dialog_prompt": "{the_other_role} said: {content}"
@@ -177,36 +176,34 @@
     "user_role_name": "Chief Technology Officer",
     "max_dialog_turns": 8,
     "initiator_prompt": [
-      "[TASK] Have Programmer write test code for the project.",
-
-      "[USER REQUIREMENTS]",
-      "- Task: {task}",
-      "- Description: {description}",
-
+      "[PHASE TASK] Have Programmer write test code for the project.",
+      "",
       "[MESSAGE] Send a message to {assistant_role} to begin writing test code.",
-
+      "",
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
       "Your message will be sent to {assistant_role}. Wait for their response. DO NOT write both sides of the conversation.",
-
+      "",
+      "[EFFICIENCY] Be concise. Complete the task efficiently.",
+      "",
       "[INSTRUCT {assistant_role}] The message must:",
-      "- Include the user requirements (task and description)",
       "- Ask {assistant_role} to write test code covering:",
       "  - Core functionality of the project",
       "  - Main modules and key functions",
       "  - Edge cases and error handling",
-      "- Ask {assistant_role} to run tests to verify they pass",
+      "- Remind {assistant_role} do NOT run the tests yet - only write the test code in this phase",
       "- Remind {assistant_role} to use proper test framework (pytest for Python, etc.)",
       "- Tests should be meaningful - not just trivial assertions",
-      "- Tell {assistant_role} they must NOT output <result> tags until tests are written and passing",
+      "- Tell {assistant_role} they must NOT output <result> tags",
       "- Do NOT include <result> tags with content in this message, as this will skip the phase",
-
+      "",
       "[VERIFICATION] After receiving {assistant_role}'s response, YOU MUST verify:",
-      "- Use 'tea runs list' or check repository to verify tests were written",
-      "- Run tests to verify they pass",
-      "- If tests are not written or failing, ask {assistant_role} to fix",
-      "- Only output <result>Done</result> after confirming tests are written and passing",
-
-      "[TERMINATION] After confirming tests are written and passing, output <result>Done</result>."
+      "1. Use 'tea pulls list' to check if the PR was actually created",
+      "2. If PR does not exist, ask {assistant_role} to create it",
+      "3. If PR exists, review the code changes using 'tea pulls view' or git commands",
+      "4. If PR does not have sufficient tests, ask {assistant_role} to add them",
+      "5. If the final test code is meaningful and covers the necessary parts, approve the PR to merge it",
+      "",
+      "[TERMINATION] After confirming the test code is complete and merged, output <result>Done</result>."
     ],
     "context": "",
     "dialog_prompt": "{the_other_role} said: {content}"
@@ -216,33 +213,33 @@
     "user_role_name": "Chief Technology Officer",
     "max_dialog_turns": 8,
     "initiator_prompt": [
-      "[TASK] Have Programmer write documentation for the project.",
-
-      "[USER REQUIREMENTS]",
-      "- Task: {task}",
-      "- Description: {description}",
-
+      "[PHASE TASK] Have Programmer write documentation for the project.",
+      "",
       "[MESSAGE] Send a message to {assistant_role} to begin writing documentation.",
-
+      "",
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
       "Your message will be sent to {assistant_role}. Wait for their response. DO NOT write both sides of the conversation.",
-
+      "",
+      "[EFFICIENCY] Be concise. Complete the task efficiently.",
+      "",
       "[INSTRUCT {assistant_role}] The message must:",
-      "- Include the user requirements (task and description)",
       "- Ask {assistant_role} to write README.md with:",
       "  - Project description",
       "  - Installation instructions",
       "  - Usage instructions",
       "  - Any other relevant documentation",
-      "- Tell {assistant_role} they must NOT output <result> tags until documentation is written",
+      "- Ask {assistant_role} to create PR with the documentation",
+      "- Tell {assistant_role} they must NOT output <result> tags",
       "- Do NOT include <result> tags with content in this message, as this will skip the phase",
-
+      "",
       "[VERIFICATION] After receiving {assistant_role}'s response, YOU MUST verify:",
-      "- Check repository to verify README.md was created",
-      "- If documentation is missing or incomplete, ask {assistant_role} to add more",
-      "- Only output <result>Done</result> after confirming documentation is complete",
-
-      "[TERMINATION] After confirming documentation is written, output <result>Done</result>."
+      "1. Use 'tea pulls list' to check if PR was actually created",
+      "2. If PR does not exist, ask {assistant_role} to create it",
+      "3. If PR exists, review the file using 'tea pulls view' or git commands",
+      "4. If documentation is missing or incomplete, ask {assistant_role} to add more",
+      "5. If documentation is complete, approve the PR to merge it",
+      "",
+      "[TERMINATION] After confirming documentation is complete and merged, output <result>Done</result>."
     ],
     "context": "",
     "dialog_prompt": "{the_other_role} said: {content}"
@@ -253,22 +250,22 @@
     "max_dialog_turns": 4,
     "initiator_prompt": [
       "[TASK] Add Code Reviewer as a collaborator to the repository with write permission.",
-
+      "",
       "[IMPORTANT]",
       "- Use tea CLI to add Code Reviewer as a collaborator",
       "- Your workspace is already configured with git and tea CLI",
       "Example: tea api -X PUT -f permission=write /repos/OWNER/REPO/collaborators/USERNAME",
       "- Replace OWNER/REPO with actual repository owner and name from 'tea repo list'",
-
+      "",
       "[GITEA WORKFLOW]",
       "1. Use 'tea repo list' to find the repository",
       "2. Add Code Reviewer as a collaborator with write permission",
-
+      "",
       "[MESSAGE] After adding collaborator, send a message to {assistant_role}.",
-
+      "",
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
       "Your message will be sent to {assistant_role}. Wait for their response. DO NOT write both sides of the conversation.",
-
+      "",
       "[INSTRUCT {assistant_role}] The message must meet the following requirements:",
       "- Include the repository URL",
       "- Describe the user requirements: {task}",
@@ -276,11 +273,11 @@
       "- Do NOT include <result> tags with content in this message, as this will skip the phase",
       "  Example WRONG: \"You MUST NOT output <result>Done</result>\"",
       "  Example CORRECT: \"DO NOT output any <result> tags\"",
-
+      "",
       "[RESULT TAGS] Termination conditions:",
       "- Do NOT output <result> tags until {assistant_role} confirms access",
       "- When {assistant_role} confirms they have access, output <result>Done</result>",
-
+      "",
       "After {assistant_role} confirms, output <result>Done</result> to conclude."
     ],
     "context": "",
@@ -291,149 +288,109 @@
     "user_role_name": "Code Reviewer",
     "max_dialog_turns": 8,
     "initiator_prompt": [
-      "[TASK] Conduct code review and ensure code quality.",
+      "[PHASE TASK] Conduct code review and instruct Programmer to fix issues until code quality meets standards.",
 
-      "[USER REQUIREMENTS] {task}",
-
-      "[YOUR WORKFLOW] As Code Reviewer, you must:",
-
-      "[STEP 1 - CHECK PR]",
-      "First, use 'tea pulls list' to check if there is an open PR in the repository.",
-
-      "[STEP 2 - ANALYZE]",
-      "If NO PR exists:",
-      "- Read the code files in the repository to understand the implementation",
-      "- Identify issues, bugs, or areas for improvement",
-      "If PR exists:",
-      "- Review the code changes in the PR using 'tea pulls view' or git commands",
-      "- Check what problems the PR would introduce if merged",
-
-      "[STEP 3 - REQUEST FIXES]",
-      "If you find issues, send a message to {assistant_role} asking them to fix the problems.",
-
-      "[STEP 4 - COMPLETE]",
-      "If code meets requirements and no issues remain, output <result>Done</result>",
-
-      "[IMPORTANT] You are the Code Reviewer. YOU do the analysis, not the Programmer.",
-
-      "[MESSAGE] Only send a message to {assistant_role} AFTER you have identified issues that need fixing.",
+      "[MESSAGE] Send a message to {assistant_role} to begin code review.",
 
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
-      "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
+      "Your message will be sent to {assistant_role}. Wait for their response. DO NOT write both sides of the conversation.",
 
-      "[RESULT TAGS] Termination conditions:",
-      "- Do NOT output <result> tags until code review is complete and all issues are resolved",
-      "- When code meets requirements and no issues remain, output <result>Done</result>",
+      "[EFFICIENCY] Be concise. Complete the task efficiently.",
 
-      "[CHECKLIST]",
-      "1. All imports present and correct",
-      "2. All methods fully implemented",
-      "3. Necessary comments present",
-      "4. No potential bugs",
-      "5. Meets user requirements",
-      "6. Logic is sound",
+      "[INSTRUCT {assistant_role}] The message must:",
+      "- Ask {assistant_role} to review the code and identify issues:",
+      "  - All imports present and correct",
+      "  - All methods fully implemented",
+      "  - No potential bugs",
+      "  - Meets user requirements",
+      "  - Logic is sound",
+      "- If issues are found, ask {assistant_role} to fix them",
+      "- If no issues, skip sending message to Programmer",
+      "- Tell {assistant_role} they must NOT output <result> tags",
+      "- Do NOT include <result> tags with content in this message, as this will skip the phase",
 
-      "After review is complete, output <result>Done</result> to conclude."
+      "[VERIFICATION] After receiving {assistant_role}'s response, YOU MUST verify:",
+      "1. If {assistant_role} reported issues, use 'tea pulls list' to check if PR was created",
+      "2. If PR does not exist, ask {assistant_role} to create it",
+      "3. If PR exists, review the code changes using 'tea pulls view' or git commands",
+      "4. If issues remain, do not approve - send another message asking for fixes",
+      "5. If code meets standards, approve the PR to merge it",
+
+      "[TERMINATION] After confirming code review is complete and issues are resolved, output <result>Done</result>."
     ],
     "context": "User Request: {task}\nModality: {modality}\nLanguage: {language}",
     "dialog_prompt": "{the_other_role} said: {content}"
   },
-  "TestErrorSummary": {
-    "assistant_role_name": "Programmer",
-    "user_role_name": "Software Test Engineer",
-    "max_dialog_turns": 8,
+  "TestRunInit": {
+    "assistant_role_name": "Software Test Engineer",
+    "user_role_name": "Chief Technology Officer",
+    "max_dialog_turns": 4,
     "initiator_prompt": [
-      "[TASK] Analyze test results and summarize bugs.",
+      "[TASK] Add Software Test Engineer as a collaborator to the repository with write permission.",
 
-      "[USER REQUIREMENTS] {task}",
+      "[IMPORTANT]",
+      "- Use tea CLI to add Software Test Engineer as a collaborator",
+      "- Your workspace is already configured with git and tea CLI",
+      "Example: tea api -X PUT -f permission=write /repos/OWNER/REPO/collaborators/USERNAME",
+      "- Replace OWNER/REPO with actual repository owner and name from 'tea repo list'",
 
-      "[YOUR WORKFLOW] As Software Test Engineer, you must:",
+      "[GITEA WORKFLOW]",
+      "1. Use 'tea repo list' to find the repository",
+      "2. Add Software Test Engineer as a collaborator with write permission",
 
-      "[STEP 1 - RUN TESTS]",
-      "First, run the tests to see the current status:",
-      "- For Python: use 'pytest' or 'python -m pytest'",
-      "- For other languages: use appropriate test command",
-
-      "[STEP 2 - ANALYZE]",
-      "Analyze the test results:",
-      "- If tests pass: output <result>Done</result>",
-      "- If tests fail: analyze the error messages and identify root causes",
-      "- Summarize bugs as: 'Critical: X bugs, Major: Y bugs, Minor: Z bugs'",
-
-      "[STEP 3 - REQUEST FIXES]",
-      "If you find bugs, send a message to {assistant_role} asking them to fix the problems.",
-
-      "[IMPORTANT] You are the Software Test Engineer. YOU run and analyze the tests, not the Programmer.",
-
-      "[MESSAGE] Only send a message to {assistant_role} AFTER you have identified bugs that need fixing.",
+      "[MESSAGE] After adding collaborator, send a message to {assistant_role}.",
 
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
-      "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
+      "Your message will be sent to {assistant_role}. Wait for their response. DO NOT write both sides of the conversation.",
 
-      "[RESULT TAGS] Termination conditions:",
-      "- If tests pass: output <result>Done</result>",
-      "- If tests fail: wait for Programmer to fix, then rerun tests",
-      "- When all tests pass, output <result>Done</result>"
+      "[INSTRUCT {assistant_role}] The message must:",
+      "- Include the repository URL",
+      "- Describe the user requirements: {task}",
+      "- Ask {assistant_role} to verify access and confirm readiness",
+      "- Do NOT include <result> tags with content in this message, as this will skip the phase",
+      "  Example WRONG: \"You MUST NOT output <result>Done</result>\"",
+      "  Example CORRECT: \"DO NOT output any <result> tags\"",
+
+      "[TERMINATION] After {assistant_role} confirms access, output <result>Done</result>."
     ],
-    "context": "Language: {language}",
+    "context": "",
     "dialog_prompt": "{the_other_role} said: {content}"
   },
-  "TestModification": {
+  "TestRun": {
     "assistant_role_name": "Programmer",
     "user_role_name": "Software Test Engineer",
     "max_dialog_turns": 12,
     "initiator_prompt": [
-      "[MESSAGE] Send a message to {assistant_role} to begin discussing the current task.",
-      "",
+      "[PHASE TASK] Run tests, analyze failures, and instruct Programmer to fix bugs until all tests pass.",
+
+      "[MESSAGE] Send a message to {assistant_role} to begin test analysis.",
+
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
-      "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
-      "",
-      "[RESULT TAGS] Both parties must NOT use <result> tags until ALL tests pass.",
-      "When all tests pass, {assistant_role} should output: <result>Done</result>",
-      "",
-      "[EFFICIENCY] Be concise. Fix bugs, test, then conclude immediately when 100% pass rate achieved.",
-      "",
-      "[INSTRUCT {assistant_role}] The message must meet the following requirements:",
-      "- Explain the task: introduce the [PHASE TASK] and basic context of the project",
-      "- Includes how the phase works, [RESULT TAGS] usage rules and [EFFICIENCY] requirements",
-      "- This instruction should not have any result XML tags with content, as this will cause the phase to end prematurely.",
-      "Example WRONG: 'Output <result>Done</result> to end this phase when all tests pass.'",
-      "Example CORRECT: 'When all tests pass (100%), put the conclusion into <result></result> to end this stage; this tag must not contain any content beforehand.'",
-      "",
-      "[PHASE TASK] Fix bugs identified in test reports.",
-      "",
-      "[CONTEXT] {context}"
-    ],
-    "context": "Language: {language}",
-    "dialog_prompt": "{the_other_role} said: {content}"
-  },
-  "EnvironmentDoc": {
-    "assistant_role_name": "Programmer",
-    "user_role_name": "Chief Technology Officer",
-    "max_dialog_turns": 8,
-    "initiator_prompt": [
-      "[MESSAGE] Send a message to {assistant_role} to begin discussing the current task.",
-      "",
-      "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
-      "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
-      "",
-      "[RESULT TAGS] Both parties must NOT use <result> tags until requirements.txt is created and verified.",
-      "When file is created and verified, {assistant_role} should output: <result>Done</result>",
-      "",
-      "[EFFICIENCY] Be concise. Create file, then conclude immediately.",
-      "",
-      "[INSTRUCT {assistant_role}] The message must meet the following requirements:",
-      "- Explain the task: introduce the [PHASE TASK] and basic context of the project",
-      "- Includes how the phase works, [RESULT TAGS] usage rules and [EFFICIENCY] requirements",
-      "- This instruction should not have any result XML tags with content, as this will cause the phase to end prematurely.",
-      "Example WRONG: 'Output <result>Done</result> to end this phase when file is created.'",
-      "Example CORRECT: 'When file is created and verified, put the conclusion into <result></result> to end this stage; this tag must not contain any content beforehand.'",
-      "",
-      "[PHASE TASK] Create requirements.txt with all necessary dependencies.",
-      "",
-      "[FORMAT] One package per line: 'package>=version' or 'package==version'",
-      "",
-      "[CONTEXT] {context}"
+      "Your message will be sent to {assistant_role}. Wait for their response. DO NOT write both sides of the conversation.",
+
+      "[EFFICIENCY] Be concise. Complete the task efficiently.",
+
+      "[INSTRUCT {assistant_role}] The message must:",
+      "- Ask {assistant_role} to run tests:",
+      "  - For Python: use 'pytest' or 'python -m pytest'",
+      "  - For other languages: use appropriate test command",
+      "- Ask {assistant_role} to analyze test results:",
+      "  - If tests pass: summarize as 'All tests passed'",
+      "  - If tests fail: analyze error messages and identify root causes",
+      "  - Summarize bugs as: 'Critical: X bugs, Major: Y bugs, Minor: Z bugs'",
+      "- If bugs found, ask {assistant_role} to create PR with fixes",
+      "- If no bugs, skip sending message to Programmer",
+      "- Tell {assistant_role} they must NOT output <result> tags",
+      "- Do NOT include <result> tags with content in this message, as this will skip the phase",
+
+      "[VERIFICATION] After receiving {assistant_role}'s response, YOU MUST verify:",
+      "1. If {assistant_role} reported bugs, use 'tea pulls list' to check if PR was created",
+      "2. If PR does not exist, ask {assistant_role} to create it",
+      "3. If PR exists, review the changes using 'tea pulls view' or git commands",
+      "4. If bugs remain, do not approve - ask {assistant_role} to fix them",
+      "5. If all tests pass, approve the PR to merge it",
+
+      "[TERMINATION] After confirming all tests pass, output <result>Done</result>."
     ],
     "context": "Language: {language}",
     "dialog_prompt": "{the_other_role} said: {content}"
