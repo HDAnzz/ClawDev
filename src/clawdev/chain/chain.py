@@ -57,12 +57,8 @@ class ChatChain:
             task_prompt: User's task description
             project_name: Name for the project directory
         """
-        # Create project directory
-        project_dir = os.path.join("projects", project_name)
-        os.makedirs(project_dir, exist_ok=True)
-
         # Initialize environment
-        self.env = ChatEnv(project_dir)
+        self.env = ChatEnv(project_name)
         self.env.task_prompt = task_prompt
 
     def make_recruitment(self) -> None:
