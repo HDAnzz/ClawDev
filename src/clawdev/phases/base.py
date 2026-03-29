@@ -125,25 +125,13 @@ class Phase(ABC):
 
     def _format_prompt(self, prompt_template: str, env: ChatEnv) -> str:
         """Format prompt template with environment data."""
-        try:
-            return prompt_template.format(
-                task=env.task_prompt,
-                modality=env.modality,
-                language=env.language,
-                ideas=env.ideas,
-                codes=env.get_codes(),
-                requirements=env.requirements,
-                comments=env.review_comments,
-                test_reports=env.test_reports,
-                error_summary=env.error_summary,
-                images=env.images,
-                description=env.description,
-                assistant_role=self.assistant_role,
-                user_role=self.user_role,
-            )
-        except KeyError as e:
-            print(f"KeyError in _format_prompt: {e}")
-            raise
+        return prompt_template.format(
+            task=env.task_prompt,
+            modality=env.modality,
+            language=env.language,
+            assistant_role=self.assistant_role,
+            user_role=self.user_role,
+        )
 
     def update_env(self, env: ChatEnv, response: str) -> None:
         """Update environment based on agent response."""
@@ -154,9 +142,6 @@ class Phase(ABC):
         for match in matches:
             content = match.group(1).strip()
             start_pos = match.start()
-            end_pos = match.end()
-            before_result = response[:start_pos]
-            after_result = response[end_pos:]
             if not self._is_inside_quotes(response, start_pos):
                 result_content = content
                 break
@@ -167,17 +152,3 @@ class Phase(ABC):
                 env.modality = result_content
             elif self.phase_name == "LanguageChoose":
                 env.language = result_content
-            elif self.phase_name == "Coding":
-                env.description = result_content
-            elif self.phase_name == "CodeReviewComment":
-                env.comments = result_content
-            elif self.phase_name == "TestErrorSummary":
-                env.error_summary = result_content
-            elif self.phase_name == "EnvironmentDoc":
-                env.docs = result_content
-            elif self.phase_name == "Manual":
-                env.manual = result_content
-            elif self.phase_name == "ArtDesign":
-                env.images = result_content
-            elif self.phase_name == "ArtIntegration":
-                env.art_integration_result = result_content

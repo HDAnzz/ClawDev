@@ -83,7 +83,7 @@
       "",
       "[CONTEXT] {context}"
     ],
-    "context": "User Request: {task}\nDescription: {description}\nTarget: {modality}\nLanguage: {language}",
+    "context": "User Request: {task}\nTarget: {modality}\nLanguage: {language}",
     "dialog_prompt": "{the_other_role} said: {content}"
   },
   "CodingInit": {
@@ -112,7 +112,7 @@
 
       "After {assistant_role} confirms, output <result>Done</result> to conclude."
     ],
-    "context": "User Request: {task}\nDescription: {description}\nTarget: {modality}\nLanguage: {language}",
+    "context": "User Request: {task}\nTarget: {modality}\nLanguage: {language}",
     "dialog_prompt": "{the_other_role} said: {content}"
   },
   "CodingImprove": {
@@ -147,7 +147,7 @@
       "",
       "[CONTEXT] {context}"
     ],
-    "context": "User Request: {task}\nDescription: {description}\nTarget: {modality}\nLanguage: {language}",
+    "context": "User Request: {task}\nTarget: {modality}\nLanguage: {language}",
     "dialog_prompt": "{the_other_role} said: {content}"
   },
   "ArtDesign": {
@@ -234,7 +234,7 @@
       "",
       "[CONTEXT] {context}"
     ],
-    "context": "User Request: {task}\nLanguage: {language}\nUnimplemented files: {unimplemented_file}",
+    "context": "User Request: {task}\nLanguage: {language}",
     "dialog_prompt": "{the_other_role} said: {content}"
   },
   "CodeReviewComment": {
@@ -294,7 +294,7 @@
       "",
       "[CONTEXT] {context}"
     ],
-    "context": "Language: {language}\nReview comments: {comments}",
+    "context": "Language: {language}",
     "dialog_prompt": "{the_other_role} said: {content}"
   },
   "TestErrorSummary": {
@@ -325,7 +325,7 @@
       "",
       "[CONTEXT] {context}"
     ],
-    "context": "Language: {language}\nTest reports: {test_reports}",
+    "context": "Language: {language}",
     "dialog_prompt": "{the_other_role} said: {content}"
   },
   "TestModification": {
@@ -354,7 +354,7 @@
       "",
       "[CONTEXT] {context}"
     ],
-    "context": "Language: {language}\nBugs to fix: {error_summary}",
+    "context": "Language: {language}",
     "dialog_prompt": "{the_other_role} said: {content}"
   },
   "EnvironmentDoc": {
