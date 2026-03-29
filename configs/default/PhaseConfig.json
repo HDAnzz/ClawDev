@@ -114,7 +114,7 @@
       "- Ask {assistant_role} to confirm whether they can access the repository",
       "- Tell {assistant_role} to review the framework code and start initial implementation",
       "- Tell {assistant_role} to create a PR with the initial implementation",
-      "- Remind {assistant_role}: Do NOT write tests, documentation, or dependency files (e.g., requirements.txt, package.json) - only code implementation",
+      "- Remind {assistant_role}: Do NOT write tests or documentation - only code implementation",
 
       "[VERIFICATION] After receiving {assistant_role}'s response, YOU MUST verify:",
       "- Use 'tea pulls list' to check if the PR was actually created",
@@ -147,7 +147,7 @@
       "[INSTRUCT {assistant_role}] The message must meet the following requirements:",
       "- Identify code deficiencies or missing features based on user requirements, and clearly specify what needs to be improved",
       "- Explain the phase mechanism: Programmer will improve code and create PR, CTO reviews and approves. Repeat until all issues are resolved",
-      "- Remind Programmer: Do NOT write tests, documentation, or dependency files (e.g., requirements.txt, package.json) - only code implementation",
+      "- Remind Programmer: Do NOT write tests or documentation - only code implementation",
       "- Tell {assistant_role} they must NOT output <result> tags. Whether this phase ends is determined solely by you (CTO)",
       "- Do NOT include <result> tags with content in this message. This will cause the phase to be skipped",
       "  Example WRONG: \"You MUST NOT output <result>Done</result>\"",
