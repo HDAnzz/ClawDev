@@ -190,9 +190,13 @@
 
       "[INSTRUCT {assistant_role}] The message must:",
       "- Include the user requirements (task and description)",
-      "- Ask {assistant_role} to write test code covering main functionality",
+      "- Ask {assistant_role} to write test code covering:",
+      "  - Core functionality of the project",
+      "  - Main modules and key functions",
+      "  - Edge cases and error handling",
       "- Ask {assistant_role} to run tests to verify they pass",
       "- Remind {assistant_role} to use proper test framework (pytest for Python, etc.)",
+      "- Tests should be meaningful - not just trivial assertions",
       "- Tell {assistant_role} they must NOT output <result> tags until tests are written and passing",
       "- Do NOT include <result> tags with content in this message, as this will skip the phase",
 
