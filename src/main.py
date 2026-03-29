@@ -136,7 +136,7 @@ def main():
     try:
         chain.run(args.task, args.project_name)
         print(
-            f"Development process completed! Project created in projects/{args.project_name}"
+            f"Development process completed!"
         )
     except Exception as e:
         print(f"Error during development process: {e}")

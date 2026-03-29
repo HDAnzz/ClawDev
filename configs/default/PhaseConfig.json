@@ -130,7 +130,7 @@
 
       "[TERMINATION] After confirming the PR has basic implementation, output <result>Done</result>."
     ],
-    "context": "User Request: {task}\nDescription: {description}\nTarget: {modality}\nLanguage: {language}",
+    "context": "",
     "dialog_prompt": "{the_other_role} said: {content}"
   },
   "CodingImprove": {
@@ -169,7 +169,7 @@
       "",
       "[CONTEXT] {context}"
     ],
-    "context": "User Request: {task}\nDescription: {description}\nTarget: {modality}\nLanguage: {language}",
+    "context": "",
     "dialog_prompt": "{the_other_role} said: {content}"
   },
   "CodingTest": {
@@ -208,7 +208,7 @@
 
       "[TERMINATION] After confirming tests are written and passing, output <result>Done</result>."
     ],
-    "context": "User Request: {task}\nDescription: {description}\nLanguage: {language}",
+    "context": "",
     "dialog_prompt": "{the_other_role} said: {content}"
   },
   "CodingDoc": {
@@ -244,7 +244,7 @@
 
       "[TERMINATION] After confirming documentation is written, output <result>Done</result>."
     ],
-    "context": "User Request: {task}\nDescription: {description}\nLanguage: {language}",
+    "context": "",
     "dialog_prompt": "{the_other_role} said: {content}"
   },
   "CodeReviewInit": {
@@ -283,7 +283,7 @@
 
       "After {assistant_role} confirms, output <result>Done</result> to conclude."
     ],
-    "context": "User Request: {task}\nLanguage: {language}",
+    "context": "",
     "dialog_prompt": "{the_other_role} said: {content}"
   },
   "CodeReviewModification": {
@@ -335,7 +335,7 @@
 
       "After review is complete, output <result>Done</result> to conclude."
     ],
-    "context": "User Request: {task}\nLanguage: {language}",
+    "context": "User Request: {task}\nModality: {modality}\nLanguage: {language}",
     "dialog_prompt": "{the_other_role} said: {content}"
   },
   "TestErrorSummary": {
@@ -404,7 +404,7 @@
       "",
       "[CONTEXT] {context}"
     ],
-    "context": "Language: {language}\nBugs to fix: {error_summary}",
+    "context": "Language: {language}",
     "dialog_prompt": "{the_other_role} said: {content}"
   },
   "EnvironmentDoc": {

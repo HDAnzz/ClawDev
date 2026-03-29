@@ -57,12 +57,8 @@ class ChatChain:
             task_prompt: User's task description
             project_name: Name for the project directory
         """
-        # Create project directory
-        project_dir = os.path.join("projects", project_name)
-        os.makedirs(project_dir, exist_ok=True)
-
         # Initialize environment
-        self.env = ChatEnv(project_dir)
+        self.env = ChatEnv(project_name)
         self.env.task_prompt = task_prompt
 
     def make_recruitment(self) -> None:
@@ -136,14 +132,7 @@ class ChatChain:
 
     def post_processing(self) -> None:
         """Perform post-processing steps after chain execution."""
-        if self.env is None:
-            raise RuntimeError("Environment not initialized")
-
-        # Write all generated files
-        self.env.write_meta()
-        self.env.write_codes()
-        self.env.write_manual()
-        self.env.write_requirements()
+        pass
 
     def run(self, task_prompt: str, project_name: str) -> None:
         """

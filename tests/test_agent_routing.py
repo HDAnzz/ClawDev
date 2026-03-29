@@ -66,7 +66,7 @@ class TestPhaseConfigConsistency:
             ("CodingInit", "Programmer", "Chief Technology Officer"),
             ("CodingImprove", "Programmer", "Chief Technology Officer"),
             ("CodeReviewInit", "Code Reviewer", "Chief Technology Officer"),
-            ("CodeReviewModification", "Code Reviewer", "Chief Technology Officer"),
+            ("CodeReviewModification", "Programmer", "Code Reviewer"),
             ("TestErrorSummary", "Programmer", "Software Test Engineer"),
             ("TestModification", "Programmer", "Software Test Engineer"),
             ("EnvironmentDoc", "Programmer", "Chief Technology Officer"),

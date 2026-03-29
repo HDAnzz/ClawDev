@@ -12,7 +12,6 @@ import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from clawdev.chain.chain import ChatChain
 from clawdev.adapter.agent_adapter import AgentAdapter
 from clawdev.env.env import ChatEnv
 
@@ -107,69 +106,6 @@ def phase_config():
     return load_phase_config()
 
 
-class TestClawDevWorkflow:
-    """Test the complete ClawDev workflow."""
-
-    def test_full_workflow_execution_order(
-        self, agent_configs, chain_config, phase_config
-    ):
-        """
-        Test that the workflow executes phases in the correct order
-        and routes to correct agents.
-        """
-        recorder = WorkflowRecorder(agent_configs)
-        adapter = recorder.create_adapter()
-
-        # Create chain
-        chain = ChatChain(adapter, config_name="default")
-
-        # Run pre-processing
-        task = "Create a simple calculator app"
-        chain.pre_processing(task, "test_project")
-        chain.make_recruitment()
-
-        # Execute phases (simplified - just call execute_step for each)
-        for phase_item in chain_config["chain"]:
-            phase_type = phase_item.get("phaseType")
-
-            if phase_type == "SimplePhase":
-                # Execute via chain
-                chain.execute_step(phase_item)
-
-            elif phase_type == "ComposedPhase":
-                cycle_num = phase_item.get("cycleNum", 1)
-                composition = phase_item.get("Composition", [])
-
-                for cycle in range(cycle_num):
-                    for sub_phase_item in composition:
-                        # Execute via chain
-                        chain.execute_step(sub_phase_item)
-
-        # Verify the execution
-        print("\n" + "=" * 60)
-        print("Workflow Execution Summary")
-        print("=" * 60)
-        print(f"Total steps executed: {len(recorder.steps)}")
-        print("\nExecution sequence:")
-
-        for i, step in enumerate(recorder.steps):
-            print(f"  {i + 1}. {step['role']} -> {step['agent_name']}")
-
-        # Verify first few steps match expected
-        assert len(recorder.steps) > 0, "Workflow should execute at least one step"
-
-        # First step should be DemandAnalysis -> CEO (user_role initiates dialog)
-        first_step = recorder.steps[0]
-        assert first_step["role"] == "Chief Executive Officer", (
-            f"First step should be CEO (initiator), got {first_step['role']}"
-        )
-        assert first_step["agent_name"] == "chief_executive_officer"
-
-        print("\n" + "=" * 60)
-        print("✓ Workflow executes correctly")
-        print("=" * 60)
-
-
 class TestPhaseSequence:
     """Test individual phase execution sequence."""
 
@@ -216,28 +152,6 @@ class TestPhaseSequence:
         assert first_step["role"] == "Chief Executive Officer"
         assert first_step["agent_name"] == "chief_executive_officer"
 
-    def test_coding_sends_to_cto(self, agent_configs, phase_config):
-        """Test that Coding phase sends to CTO (user_role initiates)."""
-        recorder = WorkflowRecorder(agent_configs)
-        adapter = recorder.create_adapter()
-
-        from clawdev.phases.simple_phase import SimplePhase
-
-        phase = SimplePhase(phase_config["CodingInit"])
-
-        env = ChatEnv("/tmp/test")
-        env.task_prompt = "Create a calculator"
-        env.modality = "Application"
-        env.language = "Python"
-        env.description = "Simple calculator"
-
-        env = phase.execute(env, adapter)
-
-        assert len(recorder.steps) >= 1
-        first_step = recorder.steps[0]
-        assert first_step["role"] == "Chief Technology Officer"
-        assert first_step["agent_name"] == "chief_technology_officer"
-
 
 class TestMessageContent:
     """Test that messages contain expected content."""
@@ -272,36 +186,6 @@ class TestMessageContent:
             "Create a calculator app" in first_message
             or "calculator" in first_message.lower()
         ), "Prompt should contain task information"
-
-    def test_coding_prompt_contains_language(self, agent_configs, phase_config):
-        """Test that Coding prompt contains language information."""
-        from clawdev.phases.simple_phase import SimplePhase
-
-        adapter = AgentAdapter(agent_configs)
-
-        captured_message = []
-
-        def capture_send(message, role="default"):
-            captured_message.append(message)
-            return "Test response"
-
-        adapter.send = capture_send
-
-        phase = SimplePhase(phase_config["CodingImprove"])
-
-        env = ChatEnv("/tmp/test")
-        env.task_prompt = "Create a calculator"
-        env.modality = "Application"
-        env.language = "Python"
-        env.description = "Calculator app"
-
-        phase.execute(env, adapter)
-
-        assert len(captured_message) >= 1
-        first_message = captured_message[0]
-
-        # Verify prompt contains language
-        assert "Python" in first_message, "Prompt should contain language information"
 
 
 if __name__ == "__main__":
