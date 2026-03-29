@@ -137,9 +137,7 @@ class Phase(ABC):
                 test_reports=env.test_reports,
                 error_summary=env.error_summary,
                 images=env.images,
-                unimplemented_file=env.unimplemented_file,
                 description=env.description,
-                gui=env.gui,
                 assistant_role=self.assistant_role,
                 user_role=self.user_role,
             )
@@ -171,8 +169,6 @@ class Phase(ABC):
                 env.language = result_content
             elif self.phase_name == "Coding":
                 env.description = result_content
-            elif self.phase_name == "CodeComplete":
-                env.unimplemented_file = result_content
             elif self.phase_name == "CodeReviewComment":
                 env.comments = result_content
             elif self.phase_name == "TestErrorSummary":

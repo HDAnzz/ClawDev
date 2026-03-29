@@ -31,9 +31,7 @@ class ChatEnv:
         self.error_summary = ""
         self.test_reports = ""
         self.images: Dict[str, str] = {}  # filename -> description
-        self.unimplemented_file = ""
         self.description = ""
-        self.gui = ""  # GUI-related information
 
     def update_codes(self, filename: str, content: str) -> None:
         """
