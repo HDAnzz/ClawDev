@@ -58,7 +58,7 @@
             "phase": "Test",
             "phaseType": "ComposedPhase",
             "cycleNum": 3,
-            "Composition": [{
+            "composition": [{
                     "phase": "TestErrorSummary",
                     "phaseType": "SimplePhase",
                     "max_turn_step": 1,
