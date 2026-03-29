@@ -101,6 +101,10 @@
       "- The repository was already created in CodingDesign phase",
       "- Your workspace is already configured with git and tea CLI",
 
+      "[USER REQUIREMENTS]",
+      "- Task: {task}",
+      "- Description: {description}",
+
       "[GITEA WORKFLOW]",
       "1. Use 'tea repo add-collaborator' to add Programmer as a collaborator to the repository",
 
@@ -111,8 +115,9 @@
 
       "[INSTRUCT {assistant_role}] The message must:",
       "- Include the repository URL",
+      "- Include the user requirements (task and description)",
       "- Ask {assistant_role} to confirm whether they can access the repository",
-      "- Tell {assistant_role} to review the framework code and start initial implementation",
+      "- Tell {assistant_role} to review the framework code and start initial implementation according to requirements",
       "- Tell {assistant_role} to create a PR with the initial implementation",
       "- Remind {assistant_role}: Do NOT write tests or documentation - only code implementation",
 
