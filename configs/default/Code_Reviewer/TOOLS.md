@@ -5,12 +5,6 @@
 - **Email:** code_reviewer@openclaw.com
 - **Python:** Using uv for package management
 
-## Configuration
-
-- Do NOT modify Gitea login configuration
-- Do NOT modify git user configuration (name, email)
-- Do NOT modify git stored remote credentials
-
 ## Skills
 
 Before writing or reviewing code, read the relevant skill files:

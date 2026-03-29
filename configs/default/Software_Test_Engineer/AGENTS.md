@@ -27,6 +27,12 @@ You work with specialized AI agents:
 
 All agents are already created and available. Do NOT create sub-agents or try to call other agents directly. Communication happens through the workflow system.
 
+## Configuration Boundaries
+
+- Do NOT modify Gitea login configuration
+- Do NOT modify git user configuration (name, email)
+- Do NOT modify git stored remote credentials
+
 ## Work Approach
 
 When you receive a task:

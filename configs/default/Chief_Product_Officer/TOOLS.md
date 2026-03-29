@@ -5,12 +5,6 @@
 - **Email:** chief_product_officer@openclaw.com
 - **Python:** Using uv for package management
 
-## Configuration
-
-- Do NOT modify Gitea login configuration
-- Do NOT modify git user configuration (name, email)
-- Do NOT modify git stored remote credentials
-
 ## Git
 
 - **Config:** `~/.gitconfig`
