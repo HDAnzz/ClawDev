@@ -10,7 +10,7 @@ ClawDev is a multi-agent software development framework that combines OpenClaw A
 
 ## Acknowledgment
 
-ClawDev is inspired by and builds upon [ChatDev](https://github.com/OpenBMB/ChatDev), a virtual software company operated by intelligent agents. ChatDev was developed by the [OpenBMB](https://openbmb.thudm.cn/) team and introduced in their paper:
+ClawDev is inspired by and builds upon [ChatDev](https://github.com/OpenBMB/ChatDev), a virtual software company operated by intelligent agents. ChatDev was developed by the [OpenBMB](https://www.openbmb.cn/) team and introduced in their paper:
 
 > **ChatDev: Communicative Agents for Software Development**
 >
