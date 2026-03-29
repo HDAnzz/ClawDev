@@ -215,25 +215,31 @@
 
       "[USER REQUIREMENTS] {task}",
 
-      "[MESSAGE] Send a message to {assistant_role} to begin the code review.",
+      "[YOUR WORKFLOW] As Code Reviewer, you must:",
+
+      "[STEP 1 - CHECK PR]",
+      "First, use 'tea pulls list' to check if there is an open PR in the repository.",
+
+      "[STEP 2 - ANALYZE]",
+      "If NO PR exists:",
+      "- Read the code files in the repository to understand the implementation",
+      "- Identify issues, bugs, or areas for improvement",
+      "If PR exists:",
+      "- Review the code changes in the PR using 'tea pulls view' or git commands",
+      "- Check what problems the PR would introduce if merged",
+
+      "[STEP 3 - REQUEST FIXES]",
+      "If you find issues, send a message to {assistant_role} asking them to fix the problems.",
+
+      "[STEP 4 - COMPLETE]",
+      "If code meets requirements and no issues remain, output <result>Done</result>",
+
+      "[IMPORTANT] You are the Code Reviewer. YOU do the analysis, not the Programmer.",
+
+      "[MESSAGE] Only send a message to {assistant_role} AFTER you have identified issues that need fixing.",
 
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
       "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
-
-      "[INSTRUCT {assistant_role}] Each round, you must:",
-      "1. First check if there is an open PR: use 'tea pulls list' to find PRs",
-      "2. If NO PR exists: Analyze the current code in the repository for problems:",
-      "   - Read the code files to understand the implementation",
-      "   - Identify issues, bugs, or areas for improvement",
-      "   - Tell Programmer what problems exist and need fixing",
-      "3. If PR exists: Review the code changes in the PR:",
-      "   - Check what problems the PR would introduce if merged",
-      "   - Identify any issues with the proposed changes",
-      "4. If code has issues: ask Programmer to fix them",
-      "5. If code is qualified and meets user requirements: output <result>Done</result>",
-      "- Do NOT output <result> tags until review is complete",
-      "  Example WRONG: \"You MUST NOT output <result>Done</result>\"",
-      "  Example CORRECT: \"DO NOT output any <result> tags\"",
 
       "[RESULT TAGS] Termination conditions:",
       "- Do NOT output <result> tags until code review is complete and all issues are resolved",
