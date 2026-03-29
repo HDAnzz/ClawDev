@@ -21,8 +21,30 @@ We express our gratitude to the ChatDev team for their pioneering work in multi-
 ## Requirements
 
 - Python 3.10+
+- Docker and Docker Compose
 - OpenClaw Gateway running at `ws://127.0.0.1:18789`
 - OpenClaw agents configured for each role
+
+## Docker Setup
+
+ClawDev uses Docker Compose to run the OpenClaw Gateway and Gitea:
+
+```bash
+# Start gateway and Gitea
+docker compose up -d
+
+# Stop services
+docker compose down
+```
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `OPENCLAW_CONFIG_HOST` | `/home/node/.openclaw` | Host config directory |
+| `OPENCLAW_GATEWAY_TOKEN` | - | Gateway API token |
+| `OPENCLAW_GATEWAY_PORT` | `18789` | Gateway WebSocket port |
+| `OPENCLAW_QMD_CUDA` | `false` | Enable CUDA for QMD |
 
 ## Installation
 
