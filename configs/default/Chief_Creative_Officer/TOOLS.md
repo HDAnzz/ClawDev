@@ -1,24 +1,5 @@
 # TOOLS.md - Environment Mapping
 
-## Gitea
-
-- **URL:** http://host.docker.internal:3000
-- **CLI:** tea
-- **Config:** `~/.config/tea/config.yml`
-
-### Team Gitea Accounts
-
-All team members have Gitea accounts:
-- chief_executive_officer
-- chief_product_officer
-- chief_technology_officer
-- chief_creative_officer
-- programmer
-- code_reviewer
-- software_test_engineer
-- counselor
-- chief_human_resource_officer
-
 ## Git
 
 - **Config:** `~/.gitconfig`
