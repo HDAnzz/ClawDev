@@ -339,30 +339,39 @@
     "user_role_name": "Software Test Engineer",
     "max_dialog_turns": 8,
     "initiator_prompt": [
-      "[MESSAGE] Send a message to {assistant_role} to begin discussing the current task.",
-      "",
+      "[TASK] Analyze test results and summarize bugs.",
+
+      "[USER REQUIREMENTS] {task}",
+
+      "[YOUR WORKFLOW] As Software Test Engineer, you must:",
+
+      "[STEP 1 - RUN TESTS]",
+      "First, run the tests to see the current status:",
+      "- For Python: use 'pytest' or 'python -m pytest'",
+      "- For other languages: use appropriate test command",
+
+      "[STEP 2 - ANALYZE]",
+      "Analyze the test results:",
+      "- If tests pass: output <result>Done</result>",
+      "- If tests fail: analyze the error messages and identify root causes",
+      "- Summarize bugs as: 'Critical: X bugs, Major: Y bugs, Minor: Z bugs'",
+
+      "[STEP 3 - REQUEST FIXES]",
+      "If you find bugs, send a message to {assistant_role} asking them to fix the problems.",
+
+      "[IMPORTANT] You are the Software Test Engineer. YOU run and analyze the tests, not the Programmer.",
+
+      "[MESSAGE] Only send a message to {assistant_role} AFTER you have identified bugs that need fixing.",
+
       "[CRITICAL] Write ONLY a message to instruct {assistant_role}. Do NOT simulate any response.",
       "Your message will be sent to {assistant_role}. Wait for their actual response. DO NOT write both sides of the conversation.",
-      "",
-      "[RESULT TAGS] Both parties must NOT use <result> tags until analysis is complete.",
-      "When analysis is complete, {assistant_role} should output: <result>Done</result>",
-      "",
-      "[EFFICIENCY] Be concise. Summarize bugs clearly, then conclude immediately.",
-      "",
-      "[INSTRUCT {assistant_role}] The message must meet the following requirements:",
-      "- Explain the task: introduce the [PHASE TASK] and basic context of the project",
-      "- Includes how the phase works, [RESULT TAGS] usage rules and [EFFICIENCY] requirements",
-      "- This instruction should not have any result XML tags with content, as this will cause the phase to end prematurely.",
-      "Example WRONG: 'Output <result>Done</result> to end this phase when analysis is complete.'",
-      "Example CORRECT: 'When analysis is complete, put the conclusion into <result></result> to end this stage; this tag must not contain any content beforehand.'",
-      "",
-      "[PHASE TASK] Analyze test reports and summarize bugs.",
-      "",
-      "[FORMAT] Summarize as: 'Critical: X bugs, Major: Y bugs, Minor: Z bugs'",
-      "",
-      "[CONTEXT] {context}"
+
+      "[RESULT TAGS] Termination conditions:",
+      "- If tests pass: output <result>Done</result>",
+      "- If tests fail: wait for Programmer to fix, then rerun tests",
+      "- When all tests pass, output <result>Done</result>"
     ],
-    "context": "Language: {language}\nTest reports: {test_reports}",
+    "context": "Language: {language}",
     "dialog_prompt": "{the_other_role} said: {content}"
   },
   "TestModification": {
