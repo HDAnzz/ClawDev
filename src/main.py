@@ -17,6 +17,18 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "."))
 from clawdev.chain.chain import ChatChain
 from clawdev.adapter.agent_adapter import AgentAdapter
 
+DEFAULT_AGENT_CONFIGS = {
+    "Chief Executive Officer": "chief_executive_officer",
+    "Chief Product Officer": "chief_product_officer",
+    "Chief Technology Officer": "chief_technology_officer",
+    "Programmer": "programmer",
+    "Code Reviewer": "code_reviewer",
+    "Software Test Engineer": "software_test_engineer",
+    "Chief Creative Officer": "chief_creative_officer",
+    "Counselor": "counselor",
+    "Chief Human Resource Officer": "chief_human_resource_officer",
+}
+
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(name)s - %(levelname)s - %(message)s",
@@ -78,7 +90,7 @@ def main():
     try:
         chain.run(args.task, args.project_name)
         print(
-            f"Development process completed! Project created in projects/{args.project_name}"
+            f"Development process completed!"
         )
     except Exception as e:
         print(f"Error during development process: {e}")

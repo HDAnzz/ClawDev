@@ -19,17 +19,21 @@ RUN --mount=type=cache,id=openclaw-bookworm-apt-cache,target=/var/cache/apt,shar
       wget && \
     rm -rf /var/lib/apt/lists/*
 
-ENV HOMEBREW_BREW_GIT_REMOTE="https://mirrors.ustc.edu.cn/brew.git"
-ENV HOMEBREW_CASK_GIT_REMOTE="https://mirrors.ustc.edu.cn/homebrew-cask.git"
+ENV HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
+ENV HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"
+ENV HOMEBREW_API_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/api"
+ENV HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
 RUN set -eux && \
     mkdir -p /home/linuxbrew/.linuxbrew && \
     chown -R node:node /home/linuxbrew && \
     \
+    git clone --depth=1 https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/install.git brew-install && \
     gosu node env \
       HOME=/home/node \
       NONINTERACTIVE=1 \
-      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" && \
+      /bin/bash brew-install/install.sh && \
     \
+    rm -rf brew-install && \
     gosu node env \
       HOME=/home/node \
       PATH="/home/linuxbrew/.linuxbrew/bin:$PATH" \
@@ -41,22 +45,17 @@ RUN set -eux && \
       PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH" \
       brew install tea
 
-RUN set -eux && \
-    gosu node env \
-      HOME=/home/node \
-      PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH" \
-      brew install oven-sh/bun/bun && \
+RUN curl -fsSL https://bun.com/install | BUN_INSTALL=/usr/local GITHUB='https://gh-proxy.com/https://github.com' bash && \
     gosu node sh -c "echo '[install]' > /home/node/.bunfig.toml && \
          echo 'registry = \"https://registry.npmmirror.com/\"' >> /home/node/.bunfig.toml"
 
 ARG OPENCLAW_QMD_CUDA=false
 ENV NODE_LLAMA_CPP_CUDA=${OPENCLAW_QMD_CUDA}
-RUN set -eux && \
-    npm config set registry https://registry.npmmirror.com && \
+RUN npm config set registry https://registry.npmmirror.com && \
     npm install -g @tobilu/qmd
 
 # ── 安装 uv ──────────────────────────────────────────────────────
-RUN curl -LsSf https://astral.sh/uv/install.sh | UV_INSTALL_DIR=/usr/local/bin sh && \
+RUN curl -LsSf https://astral.sh/uv/install.sh | UV_INSTALL_DIR=/usr/local/bin GITHUB_BASE_URL='https://gh-proxy.com/https://github.com' sh && \
     uv --version
 
 # ── 安装 Docker CLI ──────────────────────────────────────────────
