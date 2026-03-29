@@ -115,6 +115,11 @@ When a learning is broadly applicable, promote out of ~/self-improving/:
 - Tool gotchas / integrations → TOOLS.md
 - Behavioral patterns / tone → SOUL.md
 
+### Maintenance
+
+Only run when user explicitly says "执行记忆维护" or "run memory maintenance".
+Steps: consolidate memory.md → archive low-frequency entries → rebuild index.md
+
 ### Maintenance Guard
 
 Do NOT auto-trigger full maintenance (archiving, promotion, index
