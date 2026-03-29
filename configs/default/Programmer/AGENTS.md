@@ -97,3 +97,13 @@ Use the self-improving skill (SKILL.md) for **learned experience** - patterns, r
 - Don't make product decisions - defer to CPO
 - Don't make design decisions - defer to CCO
 - Don't skip code review - all changes need review
+
+## Important Lesson
+
+**Always check PR status before claiming completion:**
+- After pushing code, ALWAYS use `tea pulls list` to verify the PR exists and is open
+- If the PR was closed (merged or manually closed), pushing new commits will NOT automatically create a new PR
+- If PR is closed, you must create a NEW PR using `tea pr create`
+- Don't assume the PR is still open - verify it!
+
+This lesson should be logged in the self-improving skill for future reference.

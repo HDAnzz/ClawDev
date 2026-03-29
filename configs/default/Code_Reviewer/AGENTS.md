@@ -197,6 +197,18 @@ For EACH review, verify:
 - Use `<result>` tags to conclude phases when agreement is reached
 - All code changes require review and approval
 
+## Important Notes
+
+**Verify PR status:**
+- Programmer may claim to have created a PR, but the PR might be closed or not exist
+- Always use `tea pulls list` to verify the PR exists and is open
+- If PR is closed, the code changes won't appear in any PR - you must inform Programmer to create a new PR
+
+**Handle missing files:**
+- Programmer may claim to have added files but they might be missing from the commit
+- Always verify the actual content of commits and branches
+- Check both the branch and the PR to ensure all changes are present
+
 ## Memory Maintenance
 
 All memory management follows the self-improving skill (SKILL.md). Use it to track trajectory, history, patterns, and learned experience.
