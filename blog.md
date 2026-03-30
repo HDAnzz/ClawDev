@@ -27,23 +27,41 @@
 
 ## 🦐 二、部署我的"龙虾"
 
-### 2.1 极简部署（推荐）
+### 2.1 部署前置条件
 
-我选择了**阿里云轻量服务器**，半小时内搞定：
-
-<!-- TODO: 截图 - 阿里云轻量服务器控制台 -->
+ClawDev 需要 OpenClaw Gateway 和 Gitea 通过 Docker 运行。
 
 ```bash
-# 1. 克隆项目
-git clone https://github.com/HDAnzz/ClawDev.git
-cd clawdev
+# 1. 克隆 OpenClaw 源码
+git clone https://github.com/openclaw/openclaw.git
+cd openclaw
 
-# 2. 一键部署
-docker-compose up -d
-
-# 3. 配置Gitea（代码仓库）
-# 访问 http://你的服务器IP:3000 创建管理员账号
+# 2. 构建镜像并初始化配置
+./docker-setup.sh
 ```
+
+### 2.2 启动服务
+
+```bash
+# 启动 gateway 和 Gitea
+./scripts/compose.sh up -d
+
+# 停止服务
+./scripts/compose.sh down
+```
+
+### 2.3 安装 ClawDev
+
+```bash
+# 克隆 ClawDev 项目
+git clone https://github.com/HDAnzz/ClawDev.git
+cd ClawDev
+
+# 安装
+pip install -e .
+```
+
+<!-- TODO: 截图 - 阿里云轻量服务器控制台 -->
 
 ### 2.2 核心架构
 
