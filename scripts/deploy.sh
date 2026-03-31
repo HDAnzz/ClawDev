@@ -8,12 +8,42 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-print_status() { echo -e "${GREEN}[INFO]${NC} $1"; }
-print_warning() { echo -e "${YELLOW}[WARN]${NC} $1"; }
-print_error() { echo -e "${RED}[ERROR]${NC} $1"; }
+print_status() { echo -e "${GREEN}[INFO]${NC} $1" >&2; }
+print_warning() { echo -e "${YELLOW}[WARN]${NC} $1" >&2; }
+print_error() { echo -e "${RED}[ERROR]${NC} $1" >&2; }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+
+# Gitea configuration
+GITEA_URL="${GITEA_URL:-http://localhost:3000}"
+
+# Validate GITEA_URL - only allow localhost, 127.0.0.1, and host.docker.internal
+validate_gitea_host() {
+    local url="$1"
+    # Extract host from URL
+    local host
+    host=$(echo "$url" | sed -E 's|^https?://||' | sed -E 's|[:/].*||')
+
+    # Check if host is in whitelist
+    case "$host" in
+        localhost|127.0.0.1|host.docker.internal)
+            return 0
+            ;;
+        *)
+            echo "Error: Invalid GITEA_URL host '$host'. Only localhost, 127.0.0.1, and host.docker.internal are allowed." >&2
+            return 1
+            ;;
+    esac
+}
+
+# Validate the URL before proceeding
+if ! validate_gitea_host "$GITEA_URL"; then
+    exit 1
+fi
+
+GITEA_HOST="${GITEA_URL#http://}"
+GITEA_HOST="${GITEA_HOST#https://}"
 
 cd "$PROJECT_DIR"
 
@@ -54,6 +84,9 @@ cat > .env << EOF
 OPENCLAW_CONFIG_HOST=$OPENCLAW_CONFIG_HOST
 OPENCLAW_GATEWAY_TOKEN=$remote_token
 OPENCLAW_GATEWAY_URL=ws://127.0.0.1:$gateway_port
+
+# Gitea configuration
+GITEA_URL=${GITEA_URL}
 EOF
 print_status "Created .env file"
 
@@ -166,9 +199,10 @@ else
         gitea/gitea:latest
 fi
 
-print_status "Gitea started at http://localhost:3000"
+print_status "Gitea started at http://127.0.0.1:3000"
+print_status "The Gitea url for program to access is ${GITEA_URL}"
 print_warning "Waiting for Gitea to be ready..."
-until curl -sf http://localhost:3000/api/healthz >/dev/null 2>&1; do
+until curl -sf "${GITEA_URL}/api/healthz" >/dev/null 2>&1; do
     echo -n "."
     sleep 3
 done
@@ -182,7 +216,7 @@ print_warning "   🔧 IMPORTANT: Complete Gitea Setup"
 print_warning "=========================================="
 print_warning "=========================================="
 print_warning ""
-print_warning "   1. Open: http://localhost:3000"
+print_warning "   1. Open: http://127.0.0.1:3000"
 print_warning "   2. Complete the initial setup wizard"
 print_warning "   3. Create admin account"
 print_warning ""
@@ -196,6 +230,8 @@ sleep 3
 # Create agent accounts
 print_status "Creating agent accounts in Gitea..."
 rm -f /tmp/clawdev-last-credentials-dir
+# Export GITEA_URL for generate_agent_configs.sh
+export GITEA_URL
 ./scripts/generate_agent_configs.sh
 
 # Read credentials directory from temp file
