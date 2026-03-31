@@ -3,9 +3,47 @@
 set -e
 
 GITEA_CONTAINER="roger-gitea"
-GITEA_URL="http://host.docker.internal:3000"
+# GITEA_URL is used for external access (health checks, user-facing messages)
+GITEA_URL="${GITEA_URL:-http://localhost:3000}"
+
+# Validate GITEA_URL - only allow localhost, 127.0.0.1, and host.docker.internal
+validate_gitea_host() {
+    local url="$1"
+    # Extract host from URL
+    local host
+    host=$(echo "$url" | sed -E 's|^https?://||' | sed -E 's|[:/].*||')
+    
+    # Check if host is in whitelist
+    case "$host" in
+        localhost|127.0.0.1|host.docker.internal)
+            return 0
+            ;;
+        *)
+            echo "Error: Invalid GITEA_URL host '$host'. Only localhost, 127.0.0.1, and host.docker.internal are allowed." >&2
+            return 1
+            ;;
+    esac
+}
+
+# Validate the URL before proceeding
+if ! validate_gitea_host "$GITEA_URL"; then
+    exit 1
+fi
+
+# AGENT_GITEA_URL is used for agent credentials (agents run in sandbox, need docker internal address)
+# Derive from GITEA_URL by replacing host with host.docker.internal, keeping protocol and port
+if [[ "$GITEA_URL" =~ ^(https?)://([^/]+)(.*)$ ]]; then
+    protocol="${BASH_REMATCH[1]}"
+    rest="${BASH_REMATCH[3]}"
+    AGENT_GITEA_URL="${protocol}://host.docker.internal${rest}"
+else
+    AGENT_GITEA_URL="http://host.docker.internal:3000"
+fi
 GITEA_HOST="${GITEA_URL#http://}"
 GITEA_HOST="${GITEA_HOST#https://}"
+# Extract host from AGENT_GITEA_URL for tea config name
+AGENT_GITEA_HOST="${AGENT_GITEA_URL#http://}"
+AGENT_GITEA_HOST="${AGENT_GITEA_HOST#https://}"
 
 AGENTS=(
   "chief_creative_officer"
@@ -124,7 +162,8 @@ for agent in "${AGENTS[@]}"; do
   agent_dir="$TEMP_DIR/workspace-$agent"
   mkdir -p "$agent_dir"
 
-  echo "${GITEA_URL}" | sed "s|http://|http://${agent}:${token}@|" | sed "s|https://|https://${agent}:${token}@|" > "$agent_dir/.git-credentials"
+  # Use AGENT_GITEA_URL for credentials (agents run in sandbox)
+  echo "${AGENT_GITEA_URL}" | sed "s|http://|http://${agent}:${token}@|" | sed "s|https://|https://${agent}:${token}@|" > "$agent_dir/.git-credentials"
   chmod 600 "$agent_dir/.git-credentials"
 
   cat > "$agent_dir/.gitconfig" << EOF
@@ -138,11 +177,11 @@ EOF
   mkdir -p "$agent_dir/.config/tea"
   cat > "$agent_dir/.config/tea/config.yml" << EOF
 logins:
-    - name: $GITEA_HOST
-      url: $GITEA_URL
+    - name: $AGENT_GITEA_HOST
+      url: $AGENT_GITEA_URL
       token: $token
       default: true
-      ssh_host: $GITEA_HOST
+      ssh_host: $AGENT_GITEA_HOST
       ssh_key: ""
       insecure: false
       ssh_certificate_principal: ""
