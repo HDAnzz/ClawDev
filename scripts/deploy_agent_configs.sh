@@ -175,8 +175,19 @@ deploy_configurations() {
         # Create target directory if it doesn't exist
         mkdir -p "$target_dir"
         
-        # Delete old contents except .git (if any)
-        find "$target_dir" -mindepth 1 -not -path '*/.git*' -delete 2>/dev/null || true
+        # Delete old contents except OpenClaw core files and .git
+        find "$target_dir" -mindepth 1 \
+            -not -path '*/.git*' \
+            -not -path '*/AGENTS.md' \
+            -not -path '*/BOOTSTRAP.md' \
+            -not -path '*/HEARTBEAT.md' \
+            -not -path '*/IDENTITY.md' \
+            -not -path '*/memory*' \
+            -not -path '*/skills*' \
+            -not -path '*/SOUL.md' \
+            -not -path '*/TOOLS.md' \
+            -not -path '*/USER.md' \
+            -delete 2>/dev/null || true
         
         # Copy all contents, exclude .git
         if cp -r "$source_dir/." "$target_dir/"; then
@@ -219,7 +230,7 @@ copy_required_skills() {
     fi
     
     # Check if agent skills directory exists and contains skills.json
-    local skills_json="$agent_skills_dir/skills/skills.json"
+    local skills_json="$agent_skills_dir/skills.json"
     if [[ ! -f "$skills_json" ]]; then
         print_warning "Skills configuration file does not exist: $skills_json"
         return 0
