@@ -38,9 +38,13 @@ def setup_logging(verbose: bool = False) -> None:
     # Log file path: logs/YYYY-MM-DD.log
     log_file = os.path.join(log_dir, f"{datetime.now().strftime('%Y-%m-%d')}.log")
 
-    # Configure root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(logging.DEBUG)  # Capture all levels
+    # Use a named logger to avoid affecting third-party libraries
+    clawdev_logger = logging.getLogger("clawdev")
+    clawdev_logger.setLevel(logging.DEBUG)
+
+    # Guard against duplicate handlers
+    if clawdev_logger.handlers:
+        return
 
     formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -51,13 +55,13 @@ def setup_logging(verbose: bool = False) -> None:
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(log_level)
     console_handler.setFormatter(formatter)
-    root_logger.addHandler(console_handler)
+    clawdev_logger.addHandler(console_handler)
 
     # File handler - always DEBUG, append mode
     file_handler = logging.FileHandler(log_file, mode="a", encoding="utf-8")
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)
-    root_logger.addHandler(file_handler)
+    clawdev_logger.addHandler(file_handler)
 
 
 logger = logging.getLogger(__name__)
@@ -175,9 +179,9 @@ def main():
     # Run the development chain
     try:
         chain.run(args.task, args.project_name)
-        print(f"Development process completed!")
+        logger.info("Development process completed!")
     except Exception as e:
-        print(f"Error during development process: {e}")
+        logger.error("Error during development process: %s", e)
         return 1
     finally:
         # Clean up if we're using real agents
