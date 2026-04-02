@@ -7,7 +7,9 @@ with different configurations and options.
 
 import argparse
 import logging
+import os
 import sys
+from datetime import datetime
 
 from clawdev.chain.chain import ChatChain
 from clawdev.adapter.agent_adapter import AgentAdapter
@@ -24,10 +26,40 @@ DEFAULT_AGENT_CONFIGS = {
     "Chief Human Resource Officer": "chief_human_resource_officer",
 }
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(name)s - %(levelname)s - %(message)s",
-)
+
+def setup_logging(verbose: bool = False) -> None:
+    """Configure logging to console and file."""
+    log_level = logging.DEBUG if verbose else logging.INFO
+
+    # Create logs directory
+    log_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
+    os.makedirs(log_dir, exist_ok=True)
+
+    # Log file path: logs/YYYY-MM-DD.log
+    log_file = os.path.join(log_dir, f"{datetime.now().strftime('%Y-%m-%d')}.log")
+
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.DEBUG)  # Capture all levels
+
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(log_level)
+    console_handler.setFormatter(formatter)
+    root_logger.addHandler(console_handler)
+
+    # File handler - always DEBUG, append mode
+    file_handler = logging.FileHandler(log_file, mode="a", encoding="utf-8")
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(formatter)
+    root_logger.addHandler(file_handler)
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -116,26 +148,25 @@ def main():
 
     args = parser.parse_args()
 
-    if args.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
+    setup_logging(verbose=args.verbose)
 
-    print("Starting ClawDev framework...")
-    print(f"Task: {args.task}")
-    print(f"Project name: {args.project_name}")
-    print(f"Configuration: {args.config}")
+    logger.info("Starting ClawDev framework...")
+    logger.info("Task: %s", args.task)
+    logger.info("Project name: %s", args.project_name)
+    logger.info("Configuration: %s", args.config)
 
     if args.no_agent:
         # Run with mock adapter for testing
-        print("Running in test mode with mock adapter")
+        logger.info("Running in test mode with mock adapter")
         adapter = MockAgentAdapter()
     else:
         # Run with real OpenClaw agents
-        print("Connecting to OpenClaw agents...")
+        logger.info("Connecting to OpenClaw agents...")
         try:
             adapter = AgentAdapter(DEFAULT_AGENT_CONFIGS)
         except Exception as e:
-            print(f"Error connecting to OpenClaw agents: {e}")
-            print("Falling back to mock adapter for testing")
+            logger.error("Error connecting to OpenClaw agents: %s", e)
+            logger.info("Falling back to mock adapter for testing")
             adapter = MockAgentAdapter()
 
     # Create a ChatChain with the adapter
